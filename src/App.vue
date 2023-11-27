@@ -2,17 +2,13 @@
  * @Author: 陈巧龙
  * @Date: 2023-09-20 10:58:23
  * @LastEditors: 陈巧龙
- * @LastEditTime: 2023-11-22 15:58:49
- * @FilePath: \宜昌市监测预警\src\App.vue
+ * @LastEditTime: 2023-11-26 20:20:50
+ * @FilePath: \Disaster-Early-Warning-Systems\src\App.vue
  * @Description: 
 -->
-<script setup>
-//import HelloWorld from '@/components/HelloWorld.vue'
-</script>
-
 <template>
   <div class="app">
-    <router-view />
+    <router-view></router-view>
   </div>
 </template>
 
