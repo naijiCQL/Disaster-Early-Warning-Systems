@@ -16,7 +16,6 @@ import XYZ from 'ol/source/XYZ';
 import Layer from "@/ys/map/layer";
 import * as Format from "ol/format";
 import { LinearRing } from "ol/geom";
-import Marker from "@/ys/map/marker";
 import TileLayer from 'ol/layer/Tile'
 import { format } from 'ol/coordinate';
 import { fromExtent } from "ol/geom/Polygon";

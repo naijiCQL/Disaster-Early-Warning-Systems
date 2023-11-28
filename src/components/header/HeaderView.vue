@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-09-20 10:58:23
  * @LastEditors: 陈巧龙
- * @LastEditTime: 2023-11-28 20:35:16
+ * @LastEditTime: 2023-11-28 20:43:46
  * @FilePath: \DW-Systems\src\components\header\HeaderView.vue
  * @Description: 
 -->
@@ -89,6 +89,7 @@ onMounted(() => {
     }
   }
 
+  //修改menu样式
   .menu {
     width: 30%;
     height: 100%;
