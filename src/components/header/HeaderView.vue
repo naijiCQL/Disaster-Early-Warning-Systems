@@ -2,8 +2,8 @@
  * @Author: 陈巧龙
  * @Date: 2023-09-20 10:58:23
  * @LastEditors: 陈巧龙
- * @LastEditTime: 2023-11-27 20:54:53
- * @FilePath: \Disaster-Warning-Systems\src\components\header\HeaderView.vue
+ * @LastEditTime: 2023-11-28 20:35:16
+ * @FilePath: \DW-Systems\src\components\header\HeaderView.vue
  * @Description: 
 -->
 <script setup>
@@ -27,7 +27,7 @@ onMounted(() => {
       <img style="margin-left: 15px;" src="@/assets/images/home/header/logo.png" />
       <span>宜昌市地质灾害专业监测预警系统</span>
     </div>
-    <div style="width: 30%;">
+    <div class="menu">
       <el-menu :default-active="activeIndex" router class="el-menu" mode="horizontal" @select="handleSelect"
         background-color="#00264B" text-color="#fff" active-text-color="#fff" :ellipsis="false">
         <el-menu-item index="/sy">一张图</el-menu-item>
@@ -69,6 +69,7 @@ onMounted(() => {
 <style scoped lang="scss">
 .head {
   width: 100%;
+  height: 70px;
   background-color: #00264B;
   display: flex;
   align-items: center;
@@ -85,6 +86,35 @@ onMounted(() => {
       margin-left: 15px;
       font-family: '宋体';
       font-weight: bold;
+    }
+  }
+
+  .menu {
+    width: 30%;
+    height: 100%;
+
+    .el-menu {
+      height: 70px;
+    }
+
+    //修改下划线颜色
+    ::v-deep .el-menu--horizontal>.el-menu-item.is-active {
+      border-bottom-color: #ffce01;
+      background: #16375a !important;
+    }
+
+    ::v-deep .el-menu--horizontal {
+      border-bottom: none;
+    }
+
+    //修改导航栏选中的背景颜色
+    ::v-deep .el-menu-item.is-active {
+      background-color: #16375A !important;
+      color: #fff;
+
+      span {
+        color: #fff !important;
+      }
     }
   }
 
@@ -134,25 +164,5 @@ onMounted(() => {
 //去除鼠标放置时出现外边框的现象
 ::v-deep .el-tooltip__trigger:focus-visible {
   outline: unset;
-}
-
-.el-menu {
-  height: 70px;
-  border-right: none !important;
-}
-
-//修改下划线颜色
-::v-deep .el-menu--horizontal>.el-menu-item.is-active {
-  border-bottom: 2px solid #ffce01;
-}
-
-//修改导航栏选中的背景颜色
-::v-deep .el-menu-item.is-active {
-  background-color: #16375A !important;
-  color: #fff;
-
-  span {
-    color: #fff !important;
-  }
 }
 </style>

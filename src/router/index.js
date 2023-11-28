@@ -2,8 +2,8 @@
  * @Author: 陈巧龙
  * @Date: 2023-09-20 11:33:10
  * @LastEditors: 陈巧龙
- * @LastEditTime: 2023-11-27 19:58:20
- * @FilePath: \Disaster-Warning-Systems\src\router\index.js
+ * @LastEditTime: 2023-11-28 19:22:59
+ * @FilePath: \DW-Systems\src\router\index.js
  * @Description: 
  */
 import { createRouter, createWebHistory } from 'vue-router'
@@ -14,6 +14,7 @@ const routes = [
         path: '/',
         name: '首页',
         component: Home,
+        redirect: '/sy',
         children: [
             {
                 path: '/sy',

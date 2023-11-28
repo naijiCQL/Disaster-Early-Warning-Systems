@@ -13,6 +13,7 @@ dist-ssr
 *.local
 vite.config.js
 /src/assets
+/src/ys
 
 # Editor directories and files
 .vscode/*
