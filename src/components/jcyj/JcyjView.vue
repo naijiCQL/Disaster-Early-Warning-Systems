@@ -4,21 +4,23 @@
  * @LastEditors: 陈巧龙
  * @LastEditTime: 2023-11-28 20:13:11
  * @FilePath: \DW-Systems\src\components\jcyj\JcyjView.vue
- * @Description: 
+ * @Description: 监测预警页面
 -->
 <script setup>
+import YztView from '../yzt/YztView.vue';
 
 </script>
 
 <template>
-      <p>宜昌市地质灾害专业监测预警系统</p>
+      <div class="main-page">
+            <YztView></YztView>
+      </div>
 </template>
 
 <style scoped lang="scss">
-p{
+.main-page {
       width: 100%;
       height: 100%;
-      background-color: aqua;
       margin: 0;
 }
 </style>

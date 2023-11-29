@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-09-20 10:58:23
  * @LastEditors: 陈巧龙
- * @LastEditTime: 2023-11-28 20:43:46
+ * @LastEditTime: 2023-11-29 20:47:18
  * @FilePath: \DW-Systems\src\components\header\HeaderView.vue
  * @Description: 
 -->
@@ -32,7 +32,7 @@ onMounted(() => {
         background-color="#00264B" text-color="#fff" active-text-color="#fff" :ellipsis="false">
         <el-menu-item index="/sy">一张图</el-menu-item>
         <el-menu-item index="/jcyj">检测预警</el-menu-item>
-        <el-menu-item index="/tcpj">调查评价</el-menu-item>
+        <el-menu-item index="/dcpj">调查评价</el-menu-item>
         <el-menu-item index="/zhzl">综合治理</el-menu-item>
         <el-menu-item index="/wlw">物联网</el-menu-item>
         <el-menu-item index="/zbzs">值班值守</el-menu-item>

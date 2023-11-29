@@ -26,6 +26,11 @@ const routes = [
                 name: '监测预警',
                 component: () => import("@/components/jcyj/JcyjView.vue"),
             },
+            {
+                path: '/dcpj',
+                name: '调查评价',
+                component: () => import("@/components/dcpj/DcpjView.vue"),
+            },
         ]
     },
 

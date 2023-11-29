@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-11-26 19:36:15
  * @LastEditors: 陈巧龙
- * @LastEditTime: 2023-11-28 20:01:57
+ * @LastEditTime: 2023-11-29 21:30:04
  * @FilePath: \DW-Systems\src\components\yzt\YztView.vue
  * @Description: 一张图页面
 -->
@@ -24,6 +24,7 @@ import { Fill, Style, Stroke, Text } from 'ol/style';
 import { Vector as VectorLayer } from "ol/layer";
 import { Vector as VectorSource } from "ol/source";
 import { defaults as defaultControls, FullScreen, OverviewMap, ScaleLine, MousePosition } from "ol/control"
+import { yichangallMapJson } from './yichang'
 
 let map = ref(null) // 初始化地图
 let geoLayer = null//初始化图层
@@ -51,7 +52,7 @@ function initMap() {
         view: new View({
             projection: "EPSG:4326",
             center: [111.293629, 30.698325],
-            zoom: 10,//层级
+            zoom: 9,//层级
             // 限制地图缩放最大级别为14，最小级别为8
             minZoom: 8,
             maxZoom: 14
@@ -89,8 +90,40 @@ function initMap() {
     geoLayer = new VectorLayer({
         source: new VectorSource(),
     });
-
+    //将矢量图层进行添加
     map.addLayer(geoLayer);
+    //添加遮罩
+    addPolygonHoles()
+}
+
+/**
+ * @description: 添加宜昌市遮罩
+ * @return {*}
+ */
+function addPolygonHoles() {
+    let extent = [-180, -90, 180, 90];
+    //从范围创建多边形
+    let polygonRing = fromExtent(extent);
+    //获取此几何的坐标数组。该数组具有用于多边形的GeoJSON坐标数组的结构
+    let coords = [yichangallMapJson().features[0].geometry.coordinates];
+    coords.forEach(coord => {
+        let linearRing = new LinearRing(coord[0]);
+        //将传递的线环添加到这个多边形
+        polygonRing.appendLinearRing(linearRing);
+    });
+    let feature = new Feature({
+        geometry: polygonRing
+    });
+    feature.setStyle(new Style({
+        fill: new Fill({
+            color: "rgba(198,198,198, 0.4)",
+        }),
+        stroke: new Stroke({
+            color: "#ffffff",
+            width: 1,
+        }),
+    }));
+    geoLayer.getSource().addFeature(feature);
 }
 
 onMounted(() => {
