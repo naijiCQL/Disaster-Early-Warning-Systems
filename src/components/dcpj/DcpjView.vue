@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-11-29 20:45:00
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-07 17:06:14
+ * @LastEditTime: 2023-12-07 21:17:05
  * @FilePath: \DW-Systems\src\components\dcpj\DcpjView.vue
  * @Description: 调查评价页面
 -->
@@ -31,16 +31,53 @@ const series2 = [
     },
 ]
 
+let color = [
+    "#4fc5ea",
+    "#6c6fbf",
+    "#5ed8a9",
+    "#8f55e7",
+    "#605ad8",
+    "#f9cd33",
+    "#0ed4fa",
+    "#3a94ef",
+    "#7683f6",
+];
+
+const pieData = [
+    { value: 1240, name: '滑坡' },
+    { value: 158, name: '不稳定斜坡' },
+    { value: 85, name: '崩塌' },
+    { value: 5, name: '地面塌陷' },
+    { value: 4, name: '泥石流' }
+]
+
 const series3 = [
     {
         name: '监测点数量',
-        data: [
-            { value: 1240, name: '滑坡' },
-            { value: 158, name: '不稳定斜坡' },
-            { value: 85, name: '崩塌' },
-            { value: 5, name: '地面塌陷' },
-            { value: 4, name: '泥石流' }
-        ],
+        center: ["40%", "60%"],
+        itemStyle: {
+            color: (params) => {
+                return color[params.dataIndex]
+            }
+        },
+        label: {
+            show: true,
+            position: 'outside', //标签的位置
+            textStyle: {
+                fontSize: 11   //文字的字体大小
+            },
+            formatter: '{d}%',
+            color: (params) => {
+                console.log(params.dataIndex)
+                return color[params.dataIndex]
+            },
+        },
+        data: pieData.map((item, index) => {
+            item.label = {
+                color: color[index]
+            }
+            return item;
+        }),
     },
 ]
 const parentMethod = (data) => {
@@ -82,7 +119,7 @@ const parentMethod = (data) => {
 
     .rainEcharts {
         height: 32%;
-        width: 20%;
+        width: 22%;
         padding: 0 20px;
 
         span {

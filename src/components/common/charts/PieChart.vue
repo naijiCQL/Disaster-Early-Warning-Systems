@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-07 15:57:09
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-07 17:21:51
+ * @LastEditTime: 2023-12-07 21:20:37
  * @FilePath: \DW-Systems\src\components\common\charts\pieChart.vue
  * @Description: 封装饼图
 -->
@@ -25,32 +25,19 @@ export default {
             //表格数据
             const seriesData = props.series
             const radius = ['40%', '70%']
-            const emphasis = {
-                itemStyle: {
-                    shadowBlur: 10,
-                    shadowOffsetX: 0,
-                    shadowColor: 'rgba(0, 0, 0, 0.5)'
-                }
-            }
             const labelLine = {
-                length: 10
-            }
-            const label = {
-                formatter: '{per|{d}%}',
-                rich: {
-                    per: {
-                        backgroundColor: 'white',
-                        color: 'black'
-                    }
-                }
+                show: true,
+                textStyle: {
+                    fontSize: 11    //文字的字体大小
+                },
+                formatter: '{d}%'
             }
             //将数据添加柱状图属性
             seriesData.forEach((e) => {
                 e['type'] = 'pie'
                 e['radius'] = radius
-                e['emphasis'] = emphasis
                 e['labelLine'] = labelLine
-                e['label'] = label
+                //e['label'] = label
             })
             //需要获取到element,所以是onMounted的Hook
             let myChart = echarts.init(document.getElementById(`PieEchart-${props.id}`))
