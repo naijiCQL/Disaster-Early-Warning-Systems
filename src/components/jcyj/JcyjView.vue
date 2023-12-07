@@ -7,13 +7,13 @@
  * @Description: 监测预警页面
 -->
 <script setup>
-import YztView from '../yzt/YztView.vue';
+import MapView from '../common/MapView.vue';
 
 </script>
 
 <template>
       <div class="main-page">
-            <YztView></YztView>
+            <MapView></MapView>
       </div>
 </template>
 
