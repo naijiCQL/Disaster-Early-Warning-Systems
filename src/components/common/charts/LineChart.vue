@@ -1,13 +1,13 @@
 <!--
  * @Author: 陈巧龙
- * @Date: 2023-12-07 11:46:51
+ * @Date: 2023-12-08 15:10:00
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-08 10:09:16
- * @FilePath: \DW-Systems\src\components\common\charts\barChart.vue
- * @Description: 封装柱状图
+ * @LastEditTime: 2023-12-08 16:18:26
+ * @FilePath: \DW-Systems\src\components\common\charts\LineChart.vue
+ * @Description: 封装折线图
 -->
 <template>
-    <div ref="BarEchart" :id="`BarEchart-${id}`" style="width: 100%; height: 100%"></div>
+    <div ref="LineEchart" :id="`LineEchart-${id}`" style="width: 100%; height: 100%"></div>
 </template>
    
 <script>
@@ -27,39 +27,40 @@ export default {
             const seriesData = props.series
             //x轴数据
             const xData = props.xData
-            //柱状体颜色
+            //设置圆点为实心
+            const symbol = 'circle'
+            //设置折线颜色
+            const lineStyle = {
+                color: props.color,
+            }
+            //设置实心颜色
             const itemStyle = {
-                color: props.color
+                color: props.color,
             }
-            //柱状体上文本标签颜色
-            const label = {
-                show: true,
-                position: 'top',//放置位置
-                valueAnimation: true,//数值增长动画
-                color: props.color // 设置标签文本颜色
-            }
+
             //将数据添加柱状图属性
             seriesData.forEach((e) => {
-                e['type'] = 'bar'
+                e['type'] = 'line'
+                e['symbol'] = symbol
+                e['lineStyle'] = lineStyle
                 e['itemStyle'] = itemStyle
-                e['label'] = label
             })
             //需要获取到element,所以是onMounted的Hook
-            let myChart = echarts.init(document.getElementById(`BarEchart-${props.id}`))
+            let myChart = echarts.init(document.getElementById(`LineEchart-${props.id}`))
             // 绘制图表
             const option = {
+                legend: {
+                    data: [seriesData[0].name],
+                },
                 tooltip: {
                     trigger: 'axis',
-                    axisPointer: {
-                        type: 'shadow'
-                    },
                     backgroundColor: 'rgba(0,12,13,0.5)', // 修改背景颜色
                     borderColor: 'rgba(0,12,13,0.5)', // 修改边框颜色
                     textStyle: {
                         color: '#fff'
                     },
                     formatter: function (params) {
-                        return '<div style="text-align: left;">' + params[0].name + '<br>' + params[0].marker + params[0].seriesName + '：' + params[0].value + '</div>';
+                        return '<div style="text-align: left;">' + params[0].name + '<br>' + params[0].seriesName + '：' + params[0].value + '</div>';
                     }
                 },
                 grid: {
@@ -74,7 +75,7 @@ export default {
                     data: xData || [],
                     //用于配置坐标轴刻度标签的显示和样式
                     axisLabel: {
-                        rotate: 45, // 旋转角度，可以根据需要调整
+                        interval: 0,//显示x轴所有值
                     },
                 },
                 yAxis: {
@@ -93,7 +94,10 @@ export default {
                     },
                     //控制是否隐藏背景虚线
                     splitLine: {
-                        show: false
+                        show: true,
+                        lineStyle: {
+                            type: 'dashed', // 将样式设置为虚线
+                        },
                     }
                 },
                 series: seriesData
