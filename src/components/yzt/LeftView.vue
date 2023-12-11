@@ -2,9 +2,9 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-08 09:44:43
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-08 16:19:41
+ * @LastEditTime: 2023-12-11 16:25:52
  * @FilePath: \DW-Systems\src\components\yzt\LeftView.vue
- * @Description: 一张图左区域
+ * @Description: 一张图左侧区域
 -->
 <script setup>
 import bus from 'vue3-eventbus'
@@ -76,77 +76,90 @@ const options = [
 ]
 
 onMounted(() => {
-
+    //默认窗口显示
+    leftPageStyle.value.left = 0;
 })
-
+//初始化left-page的样式
+const leftPageStyle = ref({
+    left: '-22.1%'
+});
 //初始化显示第一个icon
 const currentIcon = ref(true);
+//发送页面
+function handleIconClick() {
+    if (currentIcon.value) {
+        leftPageStyle.value.left = '-22.1%';
+    } else {
+        leftPageStyle.value.left = 0;
+    }
+    currentIcon.value = !currentIcon.value
+}
 
 function changeValue() {
     console.log(selectValue.value)
 }
-//发送页面
-function handleIconClick() {
-    bus.emit('windowVisible', currentIcon.value)
-    currentIcon.value = !currentIcon.value
-}
+//定义饼图的大小与位置
+const position = ['40%', '70%', '45%', '50%'] //[内半径,外半径,圆心距离左侧的距离,圆心距离上侧的距离]
+
 
 </script>
 
 <template>
     <div class="main-container">
-        <div class="main-page">
-            <div class="echart-container">
-                <div class="container1">
+        <div class="first-container" :style="leftPageStyle">
+            <div class="container">
+                <div class="echart-container">
+                    <div class="container1">
+                        <div class="container-icon">
+                            <el-icon color="#1979C4">
+                                <DataAnalysis />
+                            </el-icon>
+                            <span>累计降雨量</span>
+                        </div>
+                        <el-select v-model="selectValue" class="rain-select" placeholder="近7天" size="small"
+                            @change="changeValue">
+                            <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
+                        </el-select>
+                    </div>
+                    <div class="left-bar-chart1">
+                        <bar-chart :xData="xData" :series="series1" :color="color1" :top="top" :id="'left-bar-chart1'"
+                            @parentMethod="parentMethod"></bar-chart>
+                    </div>
+                </div>
+                <div class="echart-container">
                     <div class="container-icon">
                         <el-icon color="#1979C4">
-                            <DataAnalysis />
+                            <Tickets />
                         </el-icon>
-                        <span>累计降雨量</span>
+                        <span>监测点分布</span>
                     </div>
-                    <el-select v-model="selectValue" class="rain-select" placeholder="近7天" size="small"
-                        @change="changeValue">
-                        <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
-                    </el-select>
+                    <div class="left-bar-chart2">
+                        <bar-chart :xData="xData" :series="series2" :color="color2" :top="top" :id="'left-bar-chart2'"
+                            @parentMethod="parentMethod"></bar-chart>
+                    </div>
                 </div>
-                <div class="charts1">
-                    <bar-chart :xData="xData" :series="series1" :color="color1" :top="top" :id="'charts1'"
-                        @parentMethod="parentMethod"></bar-chart>
-                </div>
-            </div>
-            <div class="echart-container">
-                <div class="container-icon">
-                    <el-icon color="#1979C4">
-                        <Tickets />
-                    </el-icon>
-                    <span>监测点分布</span>
-                </div>
-                <div class="charts2">
-                    <bar-chart :xData="xData" :series="series2" :color="color2" :top="top" :id="'charts2'"
-                        @parentMethod="parentMethod"></bar-chart>
+                <div class="echart-container">
+                    <div class="container-icon">
+                        <el-icon color="#1979C4">
+                            <Compass />
+                        </el-icon>
+                        <span>灾害类型</span>
+                    </div>
+                    <div class="left-pie-chart">
+                        <pie-chart :series="series3" :color="color3" :top="top" :position="position" :id="'left-pie-chart'"
+                            @parentMethod="parentMethod"></pie-chart>
+                    </div>
                 </div>
             </div>
-            <div class="echart-container">
-                <div class="container-icon">
-                    <el-icon color="#1979C4">
-                        <Compass />
-                    </el-icon>
-                    <span>灾害类型</span>
-                </div>
-                <div class="charts3">
-                    <pie-chart :series="series3" :color="color3" :top="top" :id="'charts3'"
-                        @parentMethod="parentMethod"></pie-chart>
-                </div>
-            </div>
-        </div>
-        <div class="icon" @click="handleIconClick">
-            <el-icon color="white" v-if="currentIcon">
-                <CaretLeft />
-            </el-icon>
+            <div class="icon" @click="handleIconClick">
+                <el-icon color="white" v-if="currentIcon">
+                    <CaretLeft />
+                </el-icon>
 
-            <el-icon color="white" v-else>
-                <CaretRight />
-            </el-icon>
+                <el-icon color="white" v-else>
+                    <CaretRight />
+                </el-icon>
+            </div>
         </div>
     </div>
 </template>
@@ -156,66 +169,75 @@ function handleIconClick() {
     margin: 0;
     width: 100%;
     height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding-left: 10px;
 
-    .main-page {
-        width: calc(100% - 14px);
-        height: 97%;
+    .first-container {
         display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-
-        .echart-container {
-            height: 32%;
-            background-color: white;
-
-            span {
-                display: flex;
-                align-items: center;
-                font-size: 14px;
-                font-weight: 600;
-                color: #666666;
-                height: 35px;
-                margin-left: 10px;
-            }
-
-            .container1 {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                margin-right: 10px;
-
-                .rain-select {
-                    width: 30%;
-                }
-
-            }
-
-            .charts1,
-            .charts2,
-            .charts3 {
-                height: calc(100% - 35px);
-            }
-
-            .container-icon {
-                display: flex;
-                align-items: center;
-                margin-left: 10px;
-            }
-        }
-    }
-
-    .icon {
-        top: 50%;
-        background-color: rgba(51, 122, 179, 0.9);
-        height: 32px;
-        width: 14px;
+        position: fixed;
+        top: 70px;
+        width: 23%;
+        height: calc(100% - 70px);
         display: flex;
         align-items: center;
-        cursor: pointer;
+        transition: left 1s linear;
+
+        .container {
+            width: calc(100% - 24px);
+            height: 97%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            margin-left: 10px;
+
+            .echart-container {
+                height: 32%;
+                background-color: white;
+
+                span {
+                    display: flex;
+                    align-items: center;
+                    font-size: 14px;
+                    font-weight: 600;
+                    color: #666666;
+                    height: 35px;
+                    margin-left: 10px;
+                }
+
+                .container1 {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    margin-right: 10px;
+
+                    .rain-select {
+                        width: 30%;
+                    }
+
+                }
+
+                .left-bar-chart1,
+                .left-bar-chart2,
+                .left-pie-chart {
+                    height: calc(100% - 35px);
+                }
+
+                .container-icon {
+                    display: flex;
+                    align-items: center;
+                    margin-left: 10px;
+                }
+            }
+        }
+
+        .icon {
+            top: 50%;
+            background-color: rgba(51, 122, 179, 0.9);
+            height: 32px;
+            width: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
     }
 }
 </style>

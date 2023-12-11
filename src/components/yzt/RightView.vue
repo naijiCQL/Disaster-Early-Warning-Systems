@@ -2,13 +2,13 @@
  * @Author: 陈巧龙
  * @Date: 2023-11-29 20:45:00
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-11 15:23:58
- * @FilePath: \DW-Systems\src\components\dcpj\DcpjView.vue
- * @Description: 调查评价页面
+ * @LastEditTime: 2023-12-11 16:25:12
+ * @FilePath: \DW-Systems\src\components\yzt\RightView.vue
+ * @Description: 一张图右侧页面
 -->
 <script setup>
-import LegendView from '@/components/common/LegendView.vue'
 import { ref, onMounted } from 'vue';
+import LegendView from '@/components/common/LegendView.vue'
 import PieChart from '@/components/common/charts/PieChart.vue'
 
 onMounted(() => {
@@ -17,14 +17,14 @@ onMounted(() => {
 })
 //初始化left-page的样式
 const rightPageStyle = ref({
-    right: '-23%'
+    right: '-23.1%'
 });
 //初始化显示第一个icon
 const currentIcon = ref(true);
 //发送页面
 function handleIconClick() {
     if (currentIcon.value) {
-        rightPageStyle.value.right = '-23%';
+        rightPageStyle.value.right = '-23.1%';
     } else {
         rightPageStyle.value.right = 0;
     }
@@ -152,8 +152,8 @@ const position = ['30%', '55%', '40%', '50%']
                             <span>93.34%</span>
                         </div>
                     </div>
-                    <div class="charts3">
-                        <pie-chart :series="series3" :color="color3" :position="position" :id="'charts3'"
+                    <div class="right-pie-chart">
+                        <pie-chart :series="series3" :color="color3" :position="position" :id="'right-pie-chart'"
                             @parentMethod="parentMethod"></pie-chart>
                     </div>
                 </div>
@@ -171,7 +171,6 @@ const position = ['30%', '55%', '40%', '50%']
     .container {
         width: 38%;
         display: flex;
-        background-color: aqua;
         position: fixed;
         top: 70px;
         height: calc(100% - 70px);
@@ -191,13 +190,13 @@ const position = ['30%', '55%', '40%', '50%']
             .map-tool {
                 width: 90%;
                 height: 5%;
-                background-color: black;
+                background-color: white;
                 display: flex;
                 justify-content: center;
                 align-items: center;
 
                 span {
-                    color: white;
+                    color:aqua;
                 }
             }
 
@@ -361,7 +360,7 @@ const position = ['30%', '55%', '40%', '50%']
                     }
                 }
 
-                .charts3 {
+                .right-pie-chart {
                     margin-top: 10px;
                     height: 65%;
                 }

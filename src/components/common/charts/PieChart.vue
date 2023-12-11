@@ -18,14 +18,16 @@ export default {
         series: Array,
         id: String,
         color: Array,
-        top: String
+        top: String,
+        position: Array
     },
     setup(props, context) {
         onMounted(() => {
             //表格数据
             const seriesData = props.series
-            const radius = ['40%', '70%']//指定饼图的内外半径
-            const center = ["45%", "50%"]//确定饼图的中心点
+            const position = props.position
+            const radius = [position[0], position[1]]//指定饼图的内外半径
+            const center = [position[2], position[3]]//确定饼图的中心点
             //设置标识线的颜色
             const labelLine = {
                 show: true,
@@ -59,15 +61,15 @@ export default {
                 }
                 return item;
             }),
-            //将数据添加柱状图属性
-            seriesData.forEach((e) => {
-                e['type'] = 'pie'
-                e['radius'] = radius
-                e['labelLine'] = labelLine
-                e['center'] = center
-                e['itemStyle'] = itemStyle
-                e['label'] = label
-            })
+                //将数据添加柱状图属性
+                seriesData.forEach((e) => {
+                    e['type'] = 'pie'
+                    e['radius'] = radius
+                    e['labelLine'] = labelLine
+                    e['center'] = center
+                    e['itemStyle'] = itemStyle
+                    e['label'] = label
+                })
             //需要获取到element,所以是onMounted的Hook
             let myChart = echarts.init(document.getElementById(`PieEchart-${props.id}`))
             // 绘制图表

@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-11-26 19:36:15
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-07 10:44:25
+ * @LastEditTime: 2023-12-11 16:23:34
  * @FilePath: \DW-Systems\src\components\common\MapView.vue
  * @Description: openlayers底图
 -->
@@ -165,7 +165,7 @@ onMounted(() => {
 
 //调节显示经纬度控件的样式
 ::v-deep .custom-mouse-position {
-    font-size: 18px;
+    font-size: 14px;
     position: absolute;
     bottom: 0.5%;
     left: 45%;
