@@ -16,12 +16,16 @@ import MapView from '@/components/common/MapView.vue';
 
 <template>
       <div class="main-page">
+            <!-- 底层地图页面 -->
             <div class="map-page">
                   <MapView></MapView>
             </div>
+            <!-- 左侧页面 -->
             <div>
+
                   <LeftView></LeftView>
             </div>
+            <!-- 右侧页面 -->
             <div>
                   <RightView></RightView>
             </div>

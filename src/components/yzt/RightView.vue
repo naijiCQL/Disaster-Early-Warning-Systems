@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-11-29 20:45:00
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-11 16:25:12
+ * @LastEditTime: 2023-12-11 17:29:03
  * @FilePath: \DW-Systems\src\components\yzt\RightView.vue
  * @Description: 一张图右侧页面
 -->
@@ -63,7 +63,18 @@ const position = ['30%', '55%', '40%', '50%']
         <div class="container" :style="rightPageStyle">
             <div class="first-container">
                 <div class="map-tool">
-                    <span>测量工具</span>
+                    <div class="tool" style="border-right: 1px solid rgb(211, 211, 211);">
+                        <img src="/markerIcon/tool/ss.png" title="搜索" />
+                    </div>
+                    <div class="tool" style="border-right: 1px solid rgb(211, 211, 211);">
+                        <img src="/markerIcon/tool/tc.png" title="图层管理" />
+                    </div>
+                    <div class="tool" style="border-right: 1px solid rgb(211, 211, 211);">
+                        <img src="/markerIcon/tool/cjl.png" title="距离量算" />
+                    </div>
+                    <div class="tool">
+                        <img src="/markerIcon/tool/cmj.png" title="面积量算" />
+                    </div>
                 </div>
                 <div class="legend">
                     <legend-view></legend-view>
@@ -189,14 +200,19 @@ const position = ['30%', '55%', '40%', '50%']
 
             .map-tool {
                 width: 90%;
-                height: 5%;
-                background-color: white;
                 display: flex;
-                justify-content: center;
                 align-items: center;
+                display: flex;
+                height: 28px;
+                border-radius: 3px;
+                background-color: rgba(255, 255, 255, 0.8);
+                justify-content: space-between;
+                line-height: 8px;
+                padding: 0 5px;
+                cursor: pointer;
 
-                span {
-                    color:aqua;
+                .tool {
+                    width: 25%;
                 }
             }
 
