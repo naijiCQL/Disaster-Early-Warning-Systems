@@ -1,98 +1,107 @@
-/*
- * @Author: 陈巧龙
- * @Date: 2023-09-21 15:56:09
- * @LastEditors: 陈巧龙
- * @LastEditTime: 2023-09-21 17:12:29
- * @FilePath: \vue3-vite\src\api\request.js
- * @Description: 
- */
 import axios from 'axios'
 import { useUserStore } from "@/store/user"
 import { storeToRefs } from "pinia"
 import { ElMessage } from 'element-plus'
 
-// let userStore = useUserStore();
-// const { token } = storeToRefs(userStore);
-
-//创建axios实例
+// 创建axios实例
 const ajax = axios.create({
-    baseURL: "/",
-    timeout: 20000,
+  baseURL: "/",
+  timeout: 50000,
 });
-let status401Bool = true; //监听是否出现401状态（默认true）
 
-//请求拦截器
+// 请求 拦截器
 ajax.interceptors.request.use(config => {
-    //需要将这个代码编写在request内部
-    //原因：request 他是一个特殊的js文件，它会在程序开始的时候立刻执行（因为调用了接口）。但是这时pinia还没有初始化完成，所以才会报错
-    let userStore = useUserStore();
-    //采用pinia的storeToRefs方法来处理响应式数据
-    const { token } = storeToRefs(userStore);
 
-    if (token.value) {
-        config.headers['Authorization'] = `Bearer ${token.value}`;
-    }
-    return config;
+  let userStore = useUserStore();
+
+  //采用pinia的storeToRefs方法来处理响应式数据
+  const { token } = storeToRefs(userStore);
+
+  if (token.value) {
+    config.headers['Authorization'] = `Bearer ${token.value}`;
+  }
+  return config;
+}, error => {
+  console.log('请求拦截器', error)
 });
 
-//响应 拦截器
+// 响应 拦截器
 ajax.interceptors.response.use(response => {
-    const { data } = response;
-    //判断数据是不是区划数据或者本地的geojson数据
-    //区划数据直接抛出，不做后续判断
-    //multipart/form-data表单类型文件数据直接抛出不做后续判断
-    if (data.length > 0) {
-        return data
-    } else if (data.type == 'FeatureCollection' || data.type == 'GeometryCollection') {
-        return data
-    } else if (data.type == 'multipart/form-data') {
-        return data
-    } else if (data.code == 200) {
-        return data
+  const { data } = response;
+  if (data.type === "FeatureCollection" || data.type === "Feature") { //筛选是否为地图数据请求
+    return response.data;
+  } else if (data.code || data.status || data.status === undefined) {
+    return response.data;
+  } else {
+    let errorMsg = data.message;
+    if (errorMsg) {
+      if (errorMsg.indexOf('凭据') > -1) {
+        jumpLoginpage("凭据");
+      } else if (errorMsg === '权限不足') {
+        jumpLoginpage("权限");
+      } else {
+        showErrMsg(errorMsg)
+      }
+    } else {
+      //其他
+      errorLog(data, response.config)
     }
-
-    const msg = data.message ?? "";
-    //根据提示信息判断是否需要重新登录
-    if (msg.indexOf('凭据') > -1) {
-        showErrMsg('登录凭据已过期，正在跳转登录页面，请稍后...');
-        logout(); //退出登录
-        return
+  }
+}, error => {
+  if (error.response) {
+    if (error.response.data.message) {
+      // 请求已发出，但服务器响应的状态码不在 2xx 范围内
+      if (error.response.data.message.indexOf('凭据') > -1 && error.response.data.status === false) {
+        jumpLoginpage("凭据");
+      } else if (error.response.data.message === '权限不足' && error.response.data.status === false) {
+        jumpLoginpage("权限");
+      } else {
+        showErrMsg(error.message);
+      }
+    } else {
+      //其他
+      console.log(error.response.data);
     }
+  } else {
+    // 服务器没有响应
+    console.log('server', error.message);
+  }
+});
 
-    //如果请求出错，data.success应该为false
-    if (!data.success) {
-        //抛出错误信息，同时将数据返回给接口
-        showErrMsg(msg)
-        return data;
-    }
-
-    //如果以上情况都未出现，则视为请求成功
-    status401Bool = true;
-    return data;
-},
-    error => {
-        console.log("错误信息", error)
-        if (error.response.status == 401) { //如果状态码为401
-            if (status401Bool) {
-                status401Bool = false;
-                showErrMsg('登录凭据过期或权限不足，正在跳转登录页面，请稍后...');
-                logout(); //退出登录
-            }
-        }
-    });
-
-//退出登录
-function logout() {
-    console.log('logout');
+// 弹出错误提示
+function showErrMsg(errorMsg) {
+  ElMessage({
+    showClose: true,
+    message: errorMsg,
+    type: 'error'
+  });
 }
 
-//打印错误提示
-function showErrMsg(errorMsg) {
-    ElMessage({
-        showClose: true,
-        message: errorMsg,
-        type: 'error'
-    });
+// 打印错误提示
+function errorLog(data, config) {
+  let errorObj = {
+    url: config.url,
+    code: data.code,
+    msg: data.message,
+  };
+  config.params && (errorObj.params = config.params);
+  config.data && (errorObj.data = JSON.parse(config.data));
+  console.log(errorObj);
+}
+
+//跳转登录页面
+function jumpLoginpage(type) {
+  if (type === '凭据') {
+    showErrMsg("登录凭据已过期，正在跳转登录页面，请稍后...");
+  } else if (type === '权限') {
+    showErrMsg("登录权限不足，正在跳转登录页面，请稍后...");
+  }
+  //清楚store缓存数据
+  store.dispatch('user/logoutAct');
+  //跳转登录页面
+  setTimeout(() => {
+    router.push("/login")
+  }, 2000)
 }
 
 export default ajax;

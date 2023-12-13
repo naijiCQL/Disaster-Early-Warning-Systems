@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-11-29 20:45:00
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-11 17:29:03
+ * @LastEditTime: 2023-12-12 20:44:57
  * @FilePath: \DW-Systems\src\components\yzt\RightView.vue
  * @Description: 一张图右侧页面
 -->
@@ -164,8 +164,7 @@ const position = ['30%', '55%', '40%', '50%']
                         </div>
                     </div>
                     <div class="right-pie-chart">
-                        <pie-chart :series="series3" :color="color3" :position="position" :id="'right-pie-chart'"
-                            @parentMethod="parentMethod"></pie-chart>
+                        <pie-chart :series="series3" :color="color3" :position="position" :id="'right-pie-chart'"></pie-chart>
                     </div>
                 </div>
             </div>

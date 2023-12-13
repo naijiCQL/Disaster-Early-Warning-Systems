@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-08 09:44:43
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-11 16:25:52
+ * @LastEditTime: 2023-12-13 17:23:21
  * @FilePath: \DW-Systems\src\components\yzt\LeftView.vue
  * @Description: 一张图左侧区域
 -->
@@ -11,27 +11,56 @@ import bus from 'vue3-eventbus'
 import { ref, onMounted } from 'vue'
 import BarChart from '@/components/common/charts/BarChart.vue'
 import PieChart from '@/components/common/charts/PieChart.vue'
+import { countRainfallByDistrict } from "@/api/sy/index";
+import { getPreviousHourTime } from "@/components/common/date/getTime.js"
 
-//控制上沿距离
-const top = '13%'
-//x坐标数据
-const xData = ['市辖区', '夷陵区', '远安县', '兴山县', '秭归县', '长阳县', '五峰县', '宜都县', '当阳市', '枝江市']
+//定义获取累计降雨量的初始参数
+let params = {
+    districtCode: "4205",
+    startTime: getPreviousHourTime(168),
+    endTime: getPreviousHourTime(0)
+}
+
+onMounted(() => {
+    //默认窗口显示
+    leftPageStyle.value.left = 0;
+    //获取累计降雨量数据
+    getRainValue(params)
+})
+//从后端获取各地区的累计降雨量数据
+function getRainValue(params) {
+    countRainfallByDistrict(params).then(res => {
+        console.log(res.result)
+        let districtName = []
+        let rainfall = []
+        res.result.forEach(e => {
+            districtName.push(e.districtName)
+            rainfall.push(e.rainfall)
+        });
+
+        xData.value = districtName
+        series1.value[0].data = rainfall
+    })
+}
+//初始化横坐标数据
+let xData = ref(['市辖区', '夷陵区', '远安县', '兴山县', '秭归县', '长阳县', '五峰县', '宜都县', '当阳市', '枝江市'])
 //柱状体颜色
 const color1 = 'rgb(0,157,230)'
 const color2 = 'rgb(118,131,246)'
-//表格数据
-const series1 = [
+//表一数据
+const series1 = ref([
     {
         name: '雨量(mm)',
         data: [1.20, 2.48, 2.04, 4.90, 1.74, 1.20, 2.48, 2.04, 4.90, 1.74],
     },
-]
-const series2 = [
+])
+//表二数据
+const series2 = ref([
     {
         name: '监测点数(个)',
         data: [120, 248, 204, 490, 174, 120, 248, 204, 490, 175],
     },
-]
+])
 //饼图颜色
 let color3 = [
     "#4fc5ea",
@@ -40,7 +69,8 @@ let color3 = [
     "#8f55e7",
     "#605ad8",
 ];
-
+//定义饼图的大小与位置
+const position = ['40%', '70%', '45%', '50%'] //[内半径,外半径,圆心距离左侧的距离,圆心距离上侧的距离]
 //饼图数据
 const series3 = [
     {
@@ -54,31 +84,30 @@ const series3 = [
         ],
     },
 ]
-const parentMethod = (data) => {
-    console.log('data', data)
-}
 //默认选择第三个选项
-const selectValue = ref('168h')
+const selectValue = ref(168)
+//选择选择框时触发事件
+function changeValue() {
+    params.endTime = getPreviousHourTime(0)
+    params.startTime = getPreviousHourTime(selectValue.value)
+    //获取累计降雨量数据
+    getRainValue(params)
+}
 
 const options = [
     {
-        value: '1h',
+        value: 1,
         label: '近一小时',
     },
     {
-        value: '24h',
+        value: 24,
         label: '近24小时',
     },
     {
-        value: '168h',
+        value: 168,
         label: '近7天',
     },
 ]
-
-onMounted(() => {
-    //默认窗口显示
-    leftPageStyle.value.left = 0;
-})
 //初始化left-page的样式
 const leftPageStyle = ref({
     left: '-22.1%'
@@ -94,14 +123,6 @@ function handleIconClick() {
     }
     currentIcon.value = !currentIcon.value
 }
-
-function changeValue() {
-    console.log(selectValue.value)
-}
-//定义饼图的大小与位置
-const position = ['40%', '70%', '45%', '50%'] //[内半径,外半径,圆心距离左侧的距离,圆心距离上侧的距离]
-
-
 </script>
 
 <template>
@@ -122,8 +143,7 @@ const position = ['40%', '70%', '45%', '50%'] //[内半径,外半径,圆心距�
                         </el-select>
                     </div>
                     <div class="left-bar-chart1">
-                        <bar-chart :xData="xData" :series="series1" :color="color1" :top="top" :id="'left-bar-chart1'"
-                            @parentMethod="parentMethod"></bar-chart>
+                        <bar-chart :xData="xData" :series="series1" :color="color1" :id="'left-bar-chart1'"></bar-chart>
                     </div>
                 </div>
                 <div class="echart-container">
@@ -134,8 +154,7 @@ const position = ['40%', '70%', '45%', '50%'] //[内半径,外半径,圆心距�
                         <span>监测点分布</span>
                     </div>
                     <div class="left-bar-chart2">
-                        <bar-chart :xData="xData" :series="series2" :color="color2" :top="top" :id="'left-bar-chart2'"
-                            @parentMethod="parentMethod"></bar-chart>
+                        <bar-chart :xData="xData" :series="series2" :color="color2" :id="'left-bar-chart2'"></bar-chart>
                     </div>
                 </div>
                 <div class="echart-container">
@@ -146,8 +165,8 @@ const position = ['40%', '70%', '45%', '50%'] //[内半径,外半径,圆心距�
                         <span>灾害类型</span>
                     </div>
                     <div class="left-pie-chart">
-                        <pie-chart :series="series3" :color="color3" :top="top" :position="position" :id="'left-pie-chart'"
-                            @parentMethod="parentMethod"></pie-chart>
+                        <pie-chart :series="series3" :color="color3" :position="position"
+                            :id="'left-pie-chart'"></pie-chart>
                     </div>
                 </div>
             </div>

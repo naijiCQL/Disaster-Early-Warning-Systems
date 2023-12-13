@@ -15,6 +15,7 @@ vite.config.js
 /src/assets
 /src/ys
 /public
+/src/api
 
 # Editor directories and files
 .vscode/*
