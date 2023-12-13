@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-08 09:44:43
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-13 17:23:21
+ * @LastEditTime: 2023-12-13 21:15:53
  * @FilePath: \DW-Systems\src\components\yzt\LeftView.vue
  * @Description: 一张图左侧区域
 -->
@@ -11,35 +11,76 @@ import bus from 'vue3-eventbus'
 import { ref, onMounted } from 'vue'
 import BarChart from '@/components/common/charts/BarChart.vue'
 import PieChart from '@/components/common/charts/PieChart.vue'
-import { countRainfallByDistrict } from "@/api/sy/index";
+import { countRainfallByDistrict, getJcdsmByXzqh, getJcdsByZhlx } from "@/api/sy/index";
 import { getPreviousHourTime } from "@/components/common/date/getTime.js"
 
 //定义获取累计降雨量的初始参数
-let params = {
+let rainParams = {
     districtCode: "4205",
     startTime: getPreviousHourTime(168),
     endTime: getPreviousHourTime(0)
+}
+
+let jcdParams = {
+    "userXzqh": "4205"
 }
 
 onMounted(() => {
     //默认窗口显示
     leftPageStyle.value.left = 0;
     //获取累计降雨量数据
-    getRainValue(params)
+    getRainData(rainParams)
+    //获得监测点数据
+    geJcdData(jcdParams)
 })
 //从后端获取各地区的累计降雨量数据
-function getRainValue(params) {
+function getRainData(params) {
     countRainfallByDistrict(params).then(res => {
-        console.log(res.result)
-        let districtName = []
-        let rainfall = []
-        res.result.forEach(e => {
-            districtName.push(e.districtName)
-            rainfall.push(e.rainfall)
-        });
+        if (res && res.result) {
+            console.log(res.result)
 
-        xData.value = districtName
-        series1.value[0].data = rainfall
+            let districtName = []
+            let rainfall = []
+            res.result.forEach(e => {
+                districtName.push(e.districtName)
+                //当rainfall为null或者0值时2，统一赋值为0
+                if (e.rainfall) {
+                    rainfall.push(e.rainfall)
+                } else {
+                    rainfall.push(0)
+                }
+            });
+
+            xData.value = districtName
+            series1.value[0].data = rainfall
+        }
+    })
+}
+let sum = ref(2124)
+//获取监测点数据
+function geJcdData(params) {
+    getJcdsmByXzqh(params).then((res) => {
+        if (res && res.result) {
+            console.log(res.result)
+
+            let xzqhmc = []
+            let jcdsm = []
+            sum.value = 0
+            res.result.forEach((e) => {
+                xzqhmc.push(e.xzqhmc)
+                jcdsm.push(e.jcdsm)
+                sum.value += e.jcdsm
+            })
+
+            xData.value = xzqhmc
+            series2.value[0].data = jcdsm
+        }
+    })
+}
+//获得灾害类型数据
+function getZhlxData(params){
+    getJcdsByZhlx(params).then((res)=>{
+        console.log(res)
     })
 }
 //初始化横坐标数据
@@ -47,18 +88,18 @@ let xData = ref(['市辖区', '夷陵区', '远安县', '兴山县', '秭归县'
 //柱状体颜色
 const color1 = 'rgb(0,157,230)'
 const color2 = 'rgb(118,131,246)'
-//表一数据
+//表一降雨量默认加载数据
 const series1 = ref([
     {
         name: '雨量(mm)',
         data: [1.20, 2.48, 2.04, 4.90, 1.74, 1.20, 2.48, 2.04, 4.90, 1.74],
     },
 ])
-//表二数据
+//表二监测站默认加载数据
 const series2 = ref([
     {
         name: '监测点数(个)',
-        data: [120, 248, 204, 490, 174, 120, 248, 204, 490, 175],
+        data: [120, 248, 204, 490, 175, 120, 248, 204, 490, 175],
     },
 ])
 //饼图颜色
@@ -88,10 +129,10 @@ const series3 = [
 const selectValue = ref(168)
 //选择选择框时触发事件
 function changeValue() {
-    params.endTime = getPreviousHourTime(0)
-    params.startTime = getPreviousHourTime(selectValue.value)
+    rainParams.endTime = getPreviousHourTime(0)
+    rainParams.startTime = getPreviousHourTime(selectValue.value)
     //获取累计降雨量数据
-    getRainValue(params)
+    getRainData(rainParams)
 }
 
 const options = [
@@ -151,7 +192,7 @@ function handleIconClick() {
                         <el-icon color="#1979C4">
                             <Tickets />
                         </el-icon>
-                        <span>监测点分布</span>
+                        <span>监测点分布 ({{ sum }})个</span>
                     </div>
                     <div class="left-bar-chart2">
                         <bar-chart :xData="xData" :series="series2" :color="color2" :id="'left-bar-chart2'"></bar-chart>
