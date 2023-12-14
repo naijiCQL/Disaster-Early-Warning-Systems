@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-11-22 14:13:59
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-13 19:09:22
+ * @LastEditTime: 2023-12-14 15:06:19
  * @FilePath: \DW-Systems\README.md
  * @Description: 
 -->
@@ -25,7 +25,7 @@
 
 ### 启动项目
 
-> npm run serve
+> npm run dev
 
 ## 参考资料
 

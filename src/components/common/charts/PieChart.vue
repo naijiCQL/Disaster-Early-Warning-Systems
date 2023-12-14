@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-07 15:57:09
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-13 17:30:35
+ * @LastEditTime: 2023-12-14 14:45:10
  * @FilePath: \DW-Systems\src\components\common\charts\PieChart.vue
  * @Description: 封装饼图
 -->
@@ -69,30 +69,28 @@ function initChart() {
     const label = {
         show: true,
         position: 'outside', //标签的位置
-        textStyle: {
-            fontSize: 11   //文字的字体大小
-        },
+        fontSize: 11,   //文字的字体大小
         formatter: '{d}%',
         color: (params) => {
             return props.color[params.dataIndex]
         },
     }
     //修改数据，不同标签的颜色对应其饼图的颜色
-    seriesData[0].data.map((item, index) => {
-        item.label = {
-            color: props.color[index]
-        }
-        return item;
-    }),
-        //将数据添加柱状图属性
-        seriesData.forEach((e) => {
-            e['type'] = 'pie'
-            e['radius'] = radius
-            e['labelLine'] = labelLine
-            e['center'] = center
-            e['itemStyle'] = itemStyle
-            e['label'] = label
-        })
+    // seriesData[0].data.map((item, index) => {
+    //     item.label = {
+    //         color: props.color[index]
+    //     }
+    //     return item;
+    // })
+    //将数据添加柱状图属性
+    seriesData.forEach((e) => {
+        e['type'] = 'pie'
+        e['radius'] = radius
+        e['labelLine'] = labelLine
+        e['center'] = center
+        e['itemStyle'] = itemStyle
+        e['label'] = label
+    })
     //需要获取到element,所以是onMounted的Hook
     myChart = echarts.init(document.getElementById(`PieEchart-${props.id}`))
     // 绘制图表
@@ -105,7 +103,9 @@ function initChart() {
                 color: 'white'
             },
             formatter: function (params) {
-                return '<div style="text-align: left;">' + params.seriesName + '<br>' + params.marker + params.name + '：' + params.value + '</div>';
+                //将数字化为标准显示格式：1234 => 1,234
+                let standardFormat = params.value.toLocaleString()
+                return '<div style="text-align: left;">' + params.seriesName + '<br>' + params.marker + params.name + '：' + standardFormat + '</div>';
             }
         },
         legend: {
@@ -137,6 +137,6 @@ onBeforeUnmount(() => {
 })
 //监听图表数据时候变化，重新渲染图表
 watch(() => series.value[0].data, () => {
-    myChart.setOption(option, true);
+    myChart.setOption(option, true)
 }, { deep: true })
 </script>

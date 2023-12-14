@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-07 11:46:51
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-13 17:21:16
+ * @LastEditTime: 2023-12-14 14:40:41
  * @FilePath: \DW-Systems\src\components\common\charts\BarChart.vue
  * @Description: 封装柱状图
 -->
@@ -137,7 +137,7 @@ onBeforeUnmount(() => {
 })
 //监听图表数据时候变化，重新渲染图表
 watch(() => series.value[0].data, () => {
-    initChart()
+    myChart.setOption(option, true)
 }, { deep: true })
 
 </script>

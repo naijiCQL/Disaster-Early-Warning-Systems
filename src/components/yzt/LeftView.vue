@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-08 09:44:43
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-13 21:15:53
+ * @LastEditTime: 2023-12-14 11:39:28
  * @FilePath: \DW-Systems\src\components\yzt\LeftView.vue
  * @Description: 一张图左侧区域
 -->
@@ -11,7 +11,7 @@ import bus from 'vue3-eventbus'
 import { ref, onMounted } from 'vue'
 import BarChart from '@/components/common/charts/BarChart.vue'
 import PieChart from '@/components/common/charts/PieChart.vue'
-import { countRainfallByDistrict, getJcdsmByXzqh, getJcdsByZhlx } from "@/api/sy/index";
+import { countRainfallByDistrict, getJcdsmByXzqh, getJcdsByZhlx } from "@/api/sy";
 import { getPreviousHourTime } from "@/components/common/date/getTime.js"
 
 //定义获取累计降雨量的初始参数
@@ -32,13 +32,13 @@ onMounted(() => {
     getRainData(rainParams)
     //获得监测点数据
     geJcdData(jcdParams)
+    //获得灾害类型数据
+    getZhlxData()
 })
 //从后端获取各地区的累计降雨量数据
 function getRainData(params) {
     countRainfallByDistrict(params).then(res => {
         if (res && res.result) {
-            console.log(res.result)
-
             let districtName = []
             let rainfall = []
             res.result.forEach(e => {
@@ -56,13 +56,12 @@ function getRainData(params) {
         }
     })
 }
+//默认监测点数为2124个
 let sum = ref(2124)
 //获取监测点数据
 function geJcdData(params) {
     getJcdsmByXzqh(params).then((res) => {
         if (res && res.result) {
-            console.log(res.result)
-
             let xzqhmc = []
             let jcdsm = []
             sum.value = 0
@@ -78,9 +77,21 @@ function geJcdData(params) {
     })
 }
 //获得灾害类型数据
-function getZhlxData(params){
-    getJcdsByZhlx(params).then((res)=>{
-        console.log(res)
+function getZhlxData(params) {
+    getJcdsByZhlx(params).then((res) => {
+        if (res && res.result) {
+            let zhlxData = []
+            res.result.forEach((e, index) => {
+                zhlxData.push({
+                    value: Number(e.jcds),
+                    name: e.zhlx,
+                    label: {
+                        color: color3[index]
+                    }
+                })
+            })
+            series3.value[0].data = zhlxData
+        }
     })
 }
 //初始化横坐标数据
@@ -112,19 +123,13 @@ let color3 = [
 ];
 //定义饼图的大小与位置
 const position = ['40%', '70%', '45%', '50%'] //[内半径,外半径,圆心距离左侧的距离,圆心距离上侧的距离]
-//饼图数据
-const series3 = [
+//初始化饼图默认数据
+const series3 = ref([
     {
         name: '监测点数量',
-        data: [
-            { value: 1240, name: '滑坡' },
-            { value: 158, name: '不稳定斜坡' },
-            { value: 85, name: '崩塌' },
-            { value: 5, name: '地面塌陷' },
-            { value: 4, name: '泥石流' }
-        ],
+        data: [],
     },
-]
+])
 //默认选择第三个选项
 const selectValue = ref(168)
 //选择选择框时触发事件
@@ -215,7 +220,6 @@ function handleIconClick() {
                 <el-icon color="white" v-if="currentIcon">
                     <CaretLeft />
                 </el-icon>
-
                 <el-icon color="white" v-else>
                     <CaretRight />
                 </el-icon>

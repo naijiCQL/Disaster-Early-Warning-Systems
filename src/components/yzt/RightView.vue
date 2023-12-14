@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-11-29 20:45:00
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-12 20:44:57
+ * @LastEditTime: 2023-12-14 14:43:35
  * @FilePath: \DW-Systems\src\components\yzt\RightView.vue
  * @Description: 一张图右侧页面
 -->
@@ -10,11 +10,46 @@
 import { ref, onMounted } from 'vue';
 import LegendView from '@/components/common/LegendView.vue'
 import PieChart from '@/components/common/charts/PieChart.vue'
+import { getFirst } from "@/api/sy";
+import { queryCgqzxlByCs } from '@/api/zhzs'
 
 onMounted(() => {
     //默认窗口显示
     rightPageStyle.value.right = 0;
+    //获取设备数据
+    getJcsbData()
+    //获得监测设备类型数据
+    getJcsbType()
 })
+//获取监测设备数据（在线、离线）
+function getJcsbData() {
+    getFirst().then((res) => {
+        if (res && res.result) {
+            jcsbData.value = res.result
+        }
+    })
+}
+//获得检测设备类型
+function getJcsbType() {
+    queryCgqzxlByCs().then((res) => {
+        if (res && res.result) {
+            let jcsbData = []
+            res.result.forEach((e, index) => {
+                jcsbData.push({
+                    value: e.total,
+                    name: e.lx,
+                    //添加颜色标签
+                    label: {
+                        color: color3[index]
+                    }
+                })
+            })
+            series3.value[0].data = jcsbData
+        }
+    })
+}
+//默认监测设备显示数量
+let jcsbData = ref({})
 //初始化left-page的样式
 const rightPageStyle = ref({
     right: '-23.1%'
@@ -30,29 +65,29 @@ function handleIconClick() {
     }
     currentIcon.value = !currentIcon.value
 }
-
 //饼图颜色
 let color3 = [
-    "#4fc5ea",
-    "#6c6fbf",
-    "#5ed8a9",
-    "#8f55e7",
-    "#605ad8",
+    "#4FC5EA",
+    "#6C6FBF",
+    "#F86846",
+    "#78C446",
+    "#FFB11A",
+    "#3A94EF",
+    "#4FC5EA",
+    "#9C6CBF",
+    "#5ED8A9",
+    "#F8445F",
+    "#257FC3",
+    "#666666"
 ];
-
 //饼图数据
-const series3 = [
+const series3 = ref([
     {
-        name: '监测点数量',
-        data: [
-            { value: 1240, name: '滑坡' },
-            { value: 158, name: '不稳定斜坡' },
-            { value: 85, name: '崩塌' },
-            { value: 5, name: '地面塌陷' },
-            { value: 4, name: '泥石流' }
-        ],
+        name: '数量',
+        data: [],
     },
-]
+])
+
 
 const position = ['30%', '55%', '40%', '50%']
 
@@ -148,23 +183,24 @@ const position = ['30%', '55%', '40%', '50%']
                     <div class="jcsb-container">
                         <div class="jcsb-info">
                             <span>设备总数</span>
-                            <span>4808</span>
+                            <span>{{ jcsbData.deviceNum }}</span>
                         </div>
                         <div class="jcsb-info">
                             <span>在线</span>
-                            <span>4488</span>
+                            <span>{{ jcsbData.online }}</span>
                         </div>
                         <div class="jcsb-info">
                             <span>离线</span>
-                            <span>320</span>
+                            <span>{{ jcsbData.offline }}</span>
                         </div>
                         <div class="jcsb-info">
                             <span>在线率</span>
-                            <span>93.34%</span>
+                            <span>{{ Number(jcsbData.deviceOnline) * 100 }}%</span>
                         </div>
                     </div>
                     <div class="right-pie-chart">
-                        <pie-chart :series="series3" :color="color3" :position="position" :id="'right-pie-chart'"></pie-chart>
+                        <pie-chart :series="series3" :color="color3" :position="position"
+                            :id="'right-pie-chart'"></pie-chart>
                     </div>
                 </div>
             </div>
