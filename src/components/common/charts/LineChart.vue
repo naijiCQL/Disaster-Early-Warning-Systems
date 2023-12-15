@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-08 15:10:00
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-08 16:18:26
+ * @LastEditTime: 2023-12-15 10:52:31
  * @FilePath: \DW-Systems\src\components\common\charts\LineChart.vue
  * @Description: 封装折线图
 -->
@@ -108,6 +108,7 @@ export default {
             myChart.on('click', function (params) {
                 context.emit('parentMethod', params)
             })
+            
             window.onresize = function () {
                 //自适应大小
                 myChart.resize()

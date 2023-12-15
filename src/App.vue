@@ -4,7 +4,7 @@
  * @LastEditors: 陈巧龙
  * @LastEditTime: 2023-11-26 20:20:50
  * @FilePath: \Disaster-Early-Warning-Systems\src\App.vue
- * @Description: 
+ * @Description: 主入口文件
 -->
 <template>
   <div class="app">

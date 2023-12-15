@@ -2,27 +2,32 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-08 09:44:43
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-14 11:39:28
+ * @LastEditTime: 2023-12-15 11:23:02
  * @FilePath: \DW-Systems\src\components\yzt\LeftView.vue
  * @Description: 一张图左侧区域
 -->
 <script setup>
 import bus from 'vue3-eventbus'
+import { storeToRefs } from "pinia";
 import { ref, onMounted } from 'vue'
+import { useCounterStore } from "@/store/mystore.js";
 import BarChart from '@/components/common/charts/BarChart.vue'
 import PieChart from '@/components/common/charts/PieChart.vue'
-import { countRainfallByDistrict, getJcdsmByXzqh, getJcdsByZhlx } from "@/api/sy";
 import { getPreviousHourTime } from "@/components/common/date/getTime.js"
+import { countRainfallByDistrict, getJcdsmByXzqh, getJcdsByZhlx } from "@/api/sy";
 
+const counterStore = useCounterStore();
+//解构出来pinai存储的值
+const { cityCode } = storeToRefs(counterStore);
 //定义获取累计降雨量的初始参数
 let rainParams = {
-    districtCode: "4205",
+    districtCode: cityCode.value,
     startTime: getPreviousHourTime(168),
     endTime: getPreviousHourTime(0)
 }
-
+//定义获取雨量的参数
 let jcdParams = {
-    "userXzqh": "4205"
+    "userXzqh": cityCode.value
 }
 
 onMounted(() => {
@@ -130,6 +135,8 @@ const series3 = ref([
         data: [],
     },
 ])
+//默认图表上沿的距离
+const pieTop = '0%'
 //默认选择第三个选项
 const selectValue = ref(168)
 //选择选择框时触发事件
@@ -211,7 +218,7 @@ function handleIconClick() {
                         <span>灾害类型</span>
                     </div>
                     <div class="left-pie-chart">
-                        <pie-chart :series="series3" :color="color3" :position="position"
+                        <pie-chart :series="series3" :color="color3" :top="pieTop" :position="position"
                             :id="'left-pie-chart'"></pie-chart>
                     </div>
                 </div>

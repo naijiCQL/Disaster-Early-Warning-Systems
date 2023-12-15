@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-07 15:57:09
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-14 14:45:10
+ * @LastEditTime: 2023-12-15 09:43:14
  * @FilePath: \DW-Systems\src\components\common\charts\PieChart.vue
  * @Description: 封装饼图
 -->
@@ -109,8 +109,10 @@ function initChart() {
             }
         },
         legend: {
+            type: 'scroll',
             orient: 'vertical',
-            left: '60%'
+            right: '0%',
+            top: props.top,
         },
         grid: {
             top: props.top || '12%',

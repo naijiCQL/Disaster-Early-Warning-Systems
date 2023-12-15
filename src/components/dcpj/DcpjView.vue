@@ -2,163 +2,109 @@
  * @Author: 陈巧龙
  * @Date: 2023-11-29 20:45:00
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-11 15:23:58
+ * @LastEditTime: 2023-12-15 16:50:09
  * @FilePath: \DW-Systems\src\components\dcpj\DcpjView.vue
  * @Description: 调查评价页面
 -->
 <script setup>
-import LegendView from '@/components/common/LegendView.vue'
 import { ref, onMounted } from 'vue';
-import PieChart from '@/components/common/charts/PieChart.vue'
 
-onMounted(() => {
-    //默认窗口显示
-    rightPageStyle.value.right = 0;
-})
-//初始化left-page的样式
-const rightPageStyle = ref({
-    right: '-23%'
-});
-//初始化显示第一个icon
-const currentIcon = ref(true);
-//发送页面
-function handleIconClick() {
-    if (currentIcon.value) {
-        rightPageStyle.value.right = '-23%';
-    } else {
-        rightPageStyle.value.right = 0;
-    }
-    currentIcon.value = !currentIcon.value
-}
+//初始化窗口不进行显示
+const dialogVisible = ref(false)
 
-//饼图颜色
-let color3 = [
-    "#4fc5ea",
-    "#6c6fbf",
-    "#5ed8a9",
-    "#8f55e7",
-    "#605ad8",
-];
+const value = ref()
 
-//饼图数据
-const series3 = [
+const data = [
     {
-        name: '监测点数量',
-        data: [
-            { value: 1240, name: '滑坡' },
-            { value: 158, name: '不稳定斜坡' },
-            { value: 85, name: '崩塌' },
-            { value: 5, name: '地面塌陷' },
-            { value: 4, name: '泥石流' }
+        value: '1',
+        label: '宜昌市',
+        children: [
+            {
+                value: '1-1',
+                label: 'Level two 1-1',
+                children: [
+                    {
+                        value: '1-1-1',
+                        label: 'Level three 1-1-1',
+                    },
+                ],
+            },
         ],
     },
 ]
 
-const position = ['30%', '55%', '40%', '50%']
+const options = [
+    {
+        value: 'Option1',
+        label: 'Option1',
+    },
+    {
+        value: 'Option2',
+        label: 'Option2',
+    },
+    {
+        value: 'Option3',
+        label: 'Option3',
+    },
+    {
+        value: 'Option4',
+        label: 'Option4',
+    },
+    {
+        value: 'Option5',
+        label: 'Option5',
+    },
+]
+
+onMounted(() => {
+
+})
 
 </script>
 
 <template>
     <div class="main-page">
-        <div class="container" :style="rightPageStyle">
-            <div class="first-container">
-                <div class="map-tool">
-                    <span>测量工具</span>
-                </div>
-                <div class="legend">
-                    <legend-view></legend-view>
-                </div>
+        <el-button type="primary" @click="dialogVisible = true">
+            Click to open the Dialog
+        </el-button>
+        <el-dialog v-model="dialogVisible" title="监测点信息列表" width="86%" top="4%" :close-on-click-modal='false'>
+            <div class="container-top">
+                <span>行政区划：</span>
+                <el-tree-select v-model="value" :data="data" :render-after-expand="false" size="middle"
+                    placeholder="请选择行政区划" class="treeSelect-style" />
+                <span>监测点名称：</span>
+                <el-input v-model="input" placeholder="请输入监测点" clearable style="width: 10%" />
+                <span>监测点编号：</span>
+                <el-input v-model="input" placeholder="请输入监测点" clearable style="width: 10%" />
+                <span>灾害类型：</span>
+                <el-select v-model="value" class="select1-style" placeholder="请选择灾害类型" :popper-append-to-body="false">
+                    <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
+                </el-select>
+                <span>关键字：</span>
+                <el-input v-model="input" placeholder="请输入关键字" clearable style="width: 9%" />
+                <span>检测单位：</span>
+                <el-select v-model="value" placeholder="请输入检测单位" :popper-append-to-body="false">
+                    <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
+                </el-select>
+                <span>项目名称：</span>
+                <el-select v-model="value" placeholder="请选择项目名称" :popper-append-to-body="false">
+                    <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
+                </el-select>
+                <el-button type="primary">查询</el-button>
+                <el-button>重置</el-button>
             </div>
-            <div class="icon" @click="handleIconClick">
-                <el-icon color="white" v-if="currentIcon">
-                    <CaretRight />
-                </el-icon>
-                <el-icon color="white" v-else>
-                    <CaretLeft />
-                </el-icon>
-            </div>
-            <div class="second-container">
-                <div class="yjxx">
-                    <div class="container-icon">
-                        <el-icon color="#1979C4">
-                            <Grid />
-                        </el-icon>
-                        <span>预警信息</span>
-                    </div>
-                    <div class="yjxx-container">
-                        <div class="infoTab infoTab1">
-                            <div class="info">
-                                <span>警报级</span>
-                            </div>
-                            <div class="info">
-                                <span class="spanNum">0</span>
-                            </div>
-                        </div>
-                        <div class="infoTab infoTab2">
-                            <div class="info">
-                                <span>警戒级</span>
-                            </div>
-                            <div class="info">
-                                <span class="spanNum">0</span>
-                            </div>
-                        </div>
-                        <div class="infoTab infoTab3">
-                            <div class="info">
-                                <span>警示级</span>
-                            </div>
-                            <div class="info">
-                                <span class="spanNum">0</span>
-                            </div>
-                        </div>
-                        <div class="infoTab infoTab4">
-                            <div class="info">
-                                <span>注意级</span>
-                            </div>
-                            <div class="info">
-                                <span class="spanNum">0</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="more">
-                        更多>>
-                    </div>
-                    <div class="page-content-info">
-                        <img src="@/assets/images/syView/noneWaringInfo.png" />
-                        <span>暂无预警信息</span>
-                    </div>
+            <div class="container-middle">
+                <div>
+                    <el-button type="primary"><el-icon>
+                            <Plus />
+                        </el-icon>新建</el-button>
+                    <el-button type="primary"><el-icon>
+                            <DocumentCopy />
+                        </el-icon>全部导出</el-button>
                 </div>
-                <div class="jcsb">
-                    <div class="container-icon">
-                        <el-icon color="#1979C4">
-                            <Histogram />
-                        </el-icon>
-                        <span>检测设备</span>
-                    </div>
-                    <div class="jcsb-container">
-                        <div class="jcsb-info">
-                            <span>设备总数</span>
-                            <span>4808</span>
-                        </div>
-                        <div class="jcsb-info">
-                            <span>在线</span>
-                            <span>4488</span>
-                        </div>
-                        <div class="jcsb-info">
-                            <span>离线</span>
-                            <span>320</span>
-                        </div>
-                        <div class="jcsb-info">
-                            <span>在线率</span>
-                            <span>93.34%</span>
-                        </div>
-                    </div>
-                    <div class="charts3">
-                        <pie-chart :series="series3" :color="color3" :position="position" :id="'charts3'"
-                            @parentMethod="parentMethod"></pie-chart>
-                    </div>
-                </div>
+                <div>333</div>
             </div>
-        </div>
+        </el-dialog>
     </div>
 </template>
 
@@ -167,206 +113,102 @@ const position = ['30%', '55%', '40%', '50%']
     width: 100%;
     height: 100%;
     margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
-    .container {
-        width: 38%;
-        display: flex;
-        background-color: aqua;
-        position: fixed;
-        top: 70px;
-        height: calc(100% - 70px);
+    .container-top {
+        background-color: rgb(245, 247, 250);
+        border-bottom: 1px solid #e3e3e3;
+        border-top: 1px solid #e3e3e3;
+        background: #f5f7fa;
+        padding: 10px 0px;
         display: flex;
         align-items: center;
-        transition: right 1s linear;
+        flex-wrap: wrap;
 
-        .first-container {
-            width: 35%;
-            height: 98%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding-left: 10px;
-            align-items: flex-end;
-
-            .map-tool {
-                width: 90%;
-                height: 5%;
-                background-color: black;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-
-                span {
-                    color: white;
-                }
-            }
-
-            .legend {
-                height: 37%;
-                margin-bottom: 12px;
-            }
+        span {
+            font-size: 12px;
+            width: 8.5%;
+            text-align: right;
+            margin: 12px 0px;
         }
 
-        .icon {
-            top: 50%;
-            background-color: rgba(51, 122, 179, 0.9);
-            height: 32px;
-            width: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-
-        .second-container {
-            width: 59%;
-            height: 98%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-
-            .container-icon {
-                display: flex;
-                align-items: center;
-                margin-left: 10px;
-
-                span {
-                    display: flex;
-                    align-items: center;
-                    font-size: 14px;
-                    font-weight: 600;
-                    color: #666666;
-                    height: 35px;
-                    margin-left: 10px;
-                }
-            }
-
-            .yjxx {
-                height: 52.35%;
-                width: 100%;
-                background-color: white;
-
-                .yjxx-container {
-                    width: 100%;
-                    height: 32%;
-                    flex-wrap: wrap;
-                    display: flex;
-                    justify-content: center;
-                    align-content: center;
-                    cursor: pointer;
-
-                    .infoTab {
-                        width: 45%;
-                        height: 45%;
-                        border-radius: 4px;
-                        margin: 5px;
-                        display: flex;
-
-                        .info {
-                            height: 100%;
-                            width: 50%;
-
-                            span {
-                                line-height: 300%;
-                                /* 行高是字体大小的150% */
-                                color: #fff;
-                                font-size: 16px;
-                                font-weight: 500;
-                            }
-
-                            .spanNum {
-                                font-size: 20px;
-                                font-weight: 600;
-                                line-height: 250%;
-                            }
-                        }
-                    }
-
-                    .infoTab1 {
-                        background: linear-gradient(to right, rgb(252, 142, 153), rgb(248, 68, 95));
-                    }
-
-                    .infoTab2 {
-                        background: linear-gradient(to right, rgb(246, 179, 101), rgb(253, 120, 24));
-                    }
-
-                    .infoTab3 {
-                        background: linear-gradient(to right, rgb(249, 213, 108), rgb(245, 209, 69));
-                    }
-
-                    .infoTab4 {
-                        background: linear-gradient(to right, rgb(43, 164, 232), rgb(37, 127, 195));
-                    }
-                }
-
-                .more {
-                    text-align: right;
-                    font-size: 13px;
-                    color: #2ba4e8;
-                    font-weight: 600;
-                    margin-right: 20px;
-                    margin-top: 10px;
-                    position: absolute;
-                    right: 0;
-                    width: 10%;
-                    cursor: pointer;
-                }
-
-                .page-content-info {
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: flex-end;
-                    align-items: center;
-                    height: 57%;
-
-                    img {
-                        width: 55%;
-                    }
-
-                    span {
-                        color: rgb(102, 102, 102);
-                        font-size: 14px;
-                    }
-
-                }
-            }
-
-            .jcsb {
-                height: 46%;
-                width: 100%;
-                background-color: white;
-
-
-                .jcsb-container {
-                    width: calc(100% - 20px);
-                    height: 18%;
-                    display: flex;
-                    justify-content: space-between;
-                    padding: 0 10px;
-                    cursor: pointer;
-
-                    .jcsb-info {
-                        width: 22%;
-                        border-radius: 4px;
-                        border: 1px solid #4fc5ea;
-
-                        span {
-                            height: 50%;
-                            display: flex;
-                            justify-content: center;
-                            align-items: center;
-                            font-size: 13px;
-                            color: rgb(102, 102, 102);
-                        }
-                    }
-                }
-
-                .charts3 {
-                    margin-top: 10px;
-                    height: 65%;
-                }
-            }
+        ::v-deep .el-button {
+            margin-left: 10px;
+            height: 28px;
+            width: 3%;
+            font-size: 12px;
         }
     }
+
+    .container-middle {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 10px;
+
+        ::v-deep .el-button {
+            height: 28px;
+            font-size: 12px;
+            padding: 10px;
+        }
+
+        ::v-deep .el-icon {
+            margin-right: 5px;
+        }
+    }
+}
+
+.treeSelect-style {
+    ::v-deep .el-input__inner {
+        width: 130px;
+    }
+}
+
+.select1-style {
+    ::v-deep .el-input__inner {
+        width: 100px;
+    }
+}
+
+::v-deep .el-input__inner {
+    height: 28px;
+    line-height: 28px;
+}
+
+::v-deep .el-dialog__header {
+    display: flex;
+    padding: 10px 15px;
+    background-color: #17467A;
+    height: 20px;
+    margin: 0;
+}
+
+::v-deep .el-dialog__title {
+    font-size: 16px;
+    color: white;
+}
+
+::v-deep .el-dialog__headerbtn {
+    position: absolute;
+    top: 0px;
+    padding: 10px 0;
+    width: 50px;
+    height: 40px;
+    cursor: pointer;
+}
+
+::v-deep .el-dialog__headerbtn:focus {
+    outline: none;
+    /* 在获得焦点时再次确保去掉轮廓样式 */
+}
+
+::v-deep .el-dialog__headerbtn .el-dialog__close {
+    color: white;
+}
+
+::v-deep .el-dialog__body {
+    padding: 10px 10px;
 }
 </style>

@@ -2,25 +2,55 @@
  * @Author: 陈巧龙
  * @Date: 2023-11-29 20:45:00
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-14 14:43:35
+ * @LastEditTime: 2023-12-15 13:26:40
  * @FilePath: \DW-Systems\src\components\yzt\RightView.vue
  * @Description: 一张图右侧页面
 -->
 <script setup>
 import { ref, onMounted } from 'vue';
+import { queryCgqzxlByCs } from '@/api/zhzs'
+import { getFirst, selectSbcgq } from "@/api/sy";
+import { useCounterStore } from "@/store/mystore.js";
 import LegendView from '@/components/common/LegendView.vue'
 import PieChart from '@/components/common/charts/PieChart.vue'
-import { getFirst } from "@/api/sy";
-import { queryCgqzxlByCs } from '@/api/zhzs'
+import { getCurrentDate } from "@/components/common/date/getTime.js"
+
+//定义获取当天各级预警数量的参数
+let params = {
+    "startTime": getCurrentDate(),
+    "userXzqh": useCounterStore().cityCode
+}
 
 onMounted(() => {
     //默认窗口显示
     rightPageStyle.value.right = 0;
+    //获取该地区在当天的各级预警数量
+    getYjNumber(params)
     //获取设备数据
     getJcsbData()
     //获得监测设备类型数据
     getJcsbType()
 })
+//定义预警初始化数量
+let yjNumber = ref({
+    "red": 0,
+    "orange": 0,
+    "yellow": 0,
+    "blue": 0,
+})
+
+//获取该区域在当天的各级预警数量
+function getYjNumber(params) {
+    selectSbcgq(params).then((res) => {
+        if (res && res.result) {
+            yjNumber.value = res.result
+            //显示预警信息
+            noInfo.value = false
+        }
+    })
+}
+//初始化预警页面无信息
+let noInfo = ref(true);
 //获取监测设备数据（在线、离线）
 function getJcsbData() {
     getFirst().then((res) => {
@@ -55,7 +85,7 @@ const rightPageStyle = ref({
     right: '-23.1%'
 });
 //初始化显示第一个icon
-const currentIcon = ref(true);
+let currentIcon = ref(true);
 //发送页面
 function handleIconClick() {
     if (currentIcon.value) {
@@ -80,6 +110,8 @@ let color3 = [
     "#257FC3",
     "#666666"
 ];
+//默认饼图上沿距离
+const pieTop = '12%'
 //饼图数据
 const series3 = ref([
     {
@@ -87,7 +119,6 @@ const series3 = ref([
         data: [],
     },
 ])
-
 
 const position = ['30%', '55%', '40%', '50%']
 
@@ -137,7 +168,7 @@ const position = ['30%', '55%', '40%', '50%']
                                 <span>警报级</span>
                             </div>
                             <div class="info">
-                                <span class="spanNum">0</span>
+                                <span class="spanNum">{{ yjNumber.red }}</span>
                             </div>
                         </div>
                         <div class="infoTab infoTab2">
@@ -145,7 +176,7 @@ const position = ['30%', '55%', '40%', '50%']
                                 <span>警戒级</span>
                             </div>
                             <div class="info">
-                                <span class="spanNum">0</span>
+                                <span class="spanNum">{{ yjNumber.orange }}</span>
                             </div>
                         </div>
                         <div class="infoTab infoTab3">
@@ -153,7 +184,7 @@ const position = ['30%', '55%', '40%', '50%']
                                 <span>警示级</span>
                             </div>
                             <div class="info">
-                                <span class="spanNum">0</span>
+                                <span class="spanNum">{{ yjNumber.yellow }}</span>
                             </div>
                         </div>
                         <div class="infoTab infoTab4">
@@ -161,16 +192,21 @@ const position = ['30%', '55%', '40%', '50%']
                                 <span>注意级</span>
                             </div>
                             <div class="info">
-                                <span class="spanNum">0</span>
+                                <span class="spanNum">{{ yjNumber.blue }}</span>
                             </div>
                         </div>
                     </div>
                     <div class="more">
                         更多>>
                     </div>
-                    <div class="page-content-info">
-                        <img src="@/assets/images/syView/noneWaringInfo.png" />
-                        <span>暂无预警信息</span>
+                    <div style="height: 57%;">
+                        <div class="noInfo" v-if="noInfo">
+                            <img src="@/assets/images/syView/noneWaringInfo.png" />
+                            <span>暂无预警信息</span>
+                        </div>
+                        <div v-else>
+                            有预警信息
+                        </div>
                     </div>
                 </div>
                 <div class="jcsb">
@@ -199,7 +235,7 @@ const position = ['30%', '55%', '40%', '50%']
                         </div>
                     </div>
                     <div class="right-pie-chart">
-                        <pie-chart :series="series3" :color="color3" :position="position"
+                        <pie-chart :series="series3" :color="color3" :top="pieTop" :position="position"
                             :id="'right-pie-chart'"></pie-chart>
                     </div>
                 </div>
@@ -362,12 +398,12 @@ const position = ['30%', '55%', '40%', '50%']
                     cursor: pointer;
                 }
 
-                .page-content-info {
+                .noInfo {
                     display: flex;
                     flex-direction: column;
                     justify-content: flex-end;
                     align-items: center;
-                    height: 57%;
+                    height: 100%;
 
                     img {
                         width: 55%;
@@ -377,7 +413,6 @@ const position = ['30%', '55%', '40%', '50%']
                         color: rgb(102, 102, 102);
                         font-size: 14px;
                     }
-
                 }
             }
 

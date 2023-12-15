@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-07 11:46:51
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-14 14:40:41
+ * @LastEditTime: 2023-12-15 11:10:05
  * @FilePath: \DW-Systems\src\components\common\charts\BarChart.vue
  * @Description: 封装柱状图
 -->
@@ -13,6 +13,7 @@
 <script setup>
 import * as echarts from 'echarts'
 import { ref, onMounted, onBeforeUnmount, defineProps, watch } from "vue";
+import bus from 'vue3-eventbus'
 
 let myChart = null
 let option = null
@@ -87,7 +88,7 @@ function initChart() {
         },
         grid: {
             top: props.top || '12%',
-            left: '5%',
+            left: '6%',
             right: '5%',
             bottom: '1%',
             containLabel: true
@@ -123,6 +124,13 @@ function initChart() {
     }
     //绘制echarts图表
     myChart.setOption(option, true)
+    //点击图表触发事件
+    myChart.on('click', function (params) {
+        if (params.seriesName === "监测点数(个)") {
+            console.log(params)
+            bus.emit('clickBarChart', params)
+        }
+    })
     //自适应不同屏幕时改变图表尺寸
     window.addEventListener('resize', cancalDebounce);
 }
