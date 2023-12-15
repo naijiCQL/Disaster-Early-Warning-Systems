@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-07 15:57:09
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-15 09:43:14
+ * @LastEditTime: 2023-12-15 22:35:10
  * @FilePath: \DW-Systems\src\components\common\charts\PieChart.vue
  * @Description: 封装饼图
 -->
@@ -105,7 +105,8 @@ function initChart() {
             formatter: function (params) {
                 //将数字化为标准显示格式：1234 => 1,234
                 let standardFormat = params.value.toLocaleString()
-                return '<div style="text-align: left;">' + params.seriesName + '<br>' + params.marker + params.name + '：' + standardFormat + '</div>';
+                let modifyName = params.name.split('(')[0]
+                return '<div style="text-align: left;">' + params.seriesName + '<br>' + params.marker + modifyName + ': ' + standardFormat + '</div>';
             }
         },
         legend: {

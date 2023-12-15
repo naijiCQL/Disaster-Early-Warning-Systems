@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-11-29 20:45:00
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-15 16:50:09
+ * @LastEditTime: 2023-12-15 17:26:24
  * @FilePath: \DW-Systems\src\components\dcpj\DcpjView.vue
  * @Description: 调查评价页面
 -->
@@ -104,6 +104,9 @@ onMounted(() => {
                 </div>
                 <div>333</div>
             </div>
+            <div class="container-down">
+                111
+            </div>
         </el-dialog>
     </div>
 </template>
@@ -157,6 +160,11 @@ onMounted(() => {
         ::v-deep .el-icon {
             margin-right: 5px;
         }
+    }
+
+    .container-down {
+       // padding: 10px 20px;
+        background-color: aqua;
     }
 }
 

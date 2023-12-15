@@ -89,13 +89,14 @@ function getZhlxData(params) {
             res.result.forEach((e, index) => {
                 zhlxData.push({
                     value: Number(e.jcds),
-                    name: e.zhlx,
+                    name: `${e.zhlx}(${e.jcds})`,
                     label: {
                         color: color3[index]
                     }
                 })
             })
             series3.value[0].data = zhlxData
+            console.log(zhlxData)
         }
     })
 }
