@@ -96,7 +96,6 @@ function getZhlxData(params) {
                 })
             })
             series3.value[0].data = zhlxData
-            console.log(zhlxData)
         }
     })
 }

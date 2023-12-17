@@ -2,30 +2,44 @@
  * @Author: 陈巧龙
  * @Date: 2023-11-29 20:45:00
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-15 13:26:40
+ * @LastEditTime: 2023-12-17 16:21:09
  * @FilePath: \DW-Systems\src\components\yzt\RightView.vue
  * @Description: 一张图右侧页面
 -->
 <script setup>
 import { ref, onMounted } from 'vue';
 import { queryCgqzxlByCs } from '@/api/zhzs'
-import { getFirst, selectSbcgq } from "@/api/sy";
+import { getFirst, selectSbcgq, queryPageWarningInfo } from "@/api/sy";
 import { useCounterStore } from "@/store/mystore.js";
 import LegendView from '@/components/common/LegendView.vue'
 import PieChart from '@/components/common/charts/PieChart.vue'
 import { getCurrentDate } from "@/components/common/date/getTime.js"
 
 //定义获取当天各级预警数量的参数
-let params = {
+let yjNumberParams = {
     "startTime": getCurrentDate(),
     "userXzqh": useCounterStore().cityCode
+}
+//定义获取当天预警信息的参数
+let warnInfoParams = {
+    "disasterPointName": "",
+    "disasterPointType": "",
+    "pageNum": 1,
+    "pageSize": 6,
+    "userXzqh": "",
+    "startTime": "",
+    "endTime": "",
+    "warningLevel": "",
+    "warningProcessStatus": "A"
 }
 
 onMounted(() => {
     //默认窗口显示
     rightPageStyle.value.right = 0;
     //获取该地区在当天的各级预警数量
-    getYjNumber(params)
+    getYjNumber(yjNumberParams)
+    //获取该地区当天各级预警信息
+    getWarnInfo(warnInfoParams)
     //获取设备数据
     getJcsbData()
     //获得监测设备类型数据
@@ -38,19 +52,29 @@ let yjNumber = ref({
     "yellow": 0,
     "blue": 0,
 })
-
+//初始化预警页面无信息
+let noInfo = ref(true);
 //获取该区域在当天的各级预警数量
 function getYjNumber(params) {
     selectSbcgq(params).then((res) => {
         if (res && res.result) {
+            console.log(res.result)
             yjNumber.value = res.result
             //显示预警信息
             noInfo.value = false
         }
     })
 }
-//初始化预警页面无信息
-let noInfo = ref(true);
+let yjInfo = ref('')
+//获取该区域当天预警信息
+function getWarnInfo(params) {
+    queryPageWarningInfo(params).then((res) => {
+        if (res && res.result) {
+            let info = res.result.list[0].warningProcessResult
+            console.log(info)
+        }
+    })
+}
 //获取监测设备数据（在线、离线）
 function getJcsbData() {
     getFirst().then((res) => {
@@ -204,7 +228,7 @@ const position = ['30%', '55%', '40%', '50%']
                             <img src="@/assets/images/syView/noneWaringInfo.png" />
                             <span>暂无预警信息</span>
                         </div>
-                        <div v-else>
+                        <div id="yjInfo" v-else>
                             有预警信息
                         </div>
                     </div>
@@ -413,6 +437,15 @@ const position = ['30%', '55%', '40%', '50%']
                         color: rgb(102, 102, 102);
                         font-size: 14px;
                     }
+                }
+
+                #yjInfo {
+                    padding-top: 25px;
+                    display: flex;
+                    padding-left: 5px;
+                    color: rgb(102, 102, 102);
+                    font-size: 13px;
+                    vertical-align: middle;
                 }
             }
 
