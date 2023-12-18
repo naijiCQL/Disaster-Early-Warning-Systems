@@ -2,12 +2,18 @@
  * @Author: 陈巧龙
  * @Date: 2023-11-29 20:45:00
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-15 17:26:24
+ * @LastEditTime: 2023-12-18 14:45:21
  * @FilePath: \DW-Systems\src\components\dcpj\DcpjView.vue
  * @Description: 调查评价页面
 -->
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
+import MapView from '@/components/common/MapView.vue';
+import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
+import en from 'element-plus/dist/locale/en.mjs'
+
+const language = ref('zh-cn')
+const locale = computed(() => (language.value === 'zh-cn' ? zhCn : en))
 
 //初始化窗口不进行显示
 const dialogVisible = ref(false)
@@ -57,7 +63,82 @@ const options = [
 ]
 
 onMounted(() => {
+})
+//初始化图层开始显示的要素
+let active = ref(true)
+//根据不同的图层进行切换样式
+function toggleLayers(activeLayer) {
+    const book = document.querySelector('.book');
+    const map = document.querySelector('.map');
 
+    if (activeLayer === 'book') {
+        book.style.backgroundColor = '#409EFF';
+        map.style.backgroundColor = 'white';
+        active.value = false
+    } else {
+        map.style.backgroundColor = '#409EFF';
+        book.style.backgroundColor = 'white';
+        active.value = true
+    }
+}
+
+const tableData = ref([]);
+
+for (let i = 0; i < 100; i++) {
+    const randomDate = "2022-07-25";
+    const randomName = "第" + (i + 1) + "人";
+    const { randomAddress, randomGenders } = generateRandomAddress(); // 生成随机地址
+
+    tableData.value.push({
+        date: randomDate,
+        name: randomName,
+        genders: randomGenders,
+        address: randomAddress
+    });
+}
+
+// 生成随机地址的函数
+function generateRandomAddress() {
+    const cities = ["北京", "上海", "广东", "河北", "云南", "浙江"];
+    const randomIndex = Math.floor(Math.random() * cities.length);
+    const randomAddress = cities[randomIndex];
+
+    const genders = ["男", "女"]
+    const randomGenders = genders[Math.floor(Math.random() * 2)]
+
+    return { randomAddress, randomGenders }
+}
+
+// 计算页面大小函数
+function calculatePageSize() {
+    const screenHeight = (window.innerHeight * 0.85 - 40) / 60;
+    return Math.max(1, screenHeight.toFixed(0)); // 至少为1条数据
+}
+
+// 在窗口大小改变时重新计算 pageSize
+window.addEventListener('resize', () => {
+    pageSize.value = calculatePageSize();
+});
+
+const currentPage = ref(1)//当前页f
+const pageSize = ref(calculatePageSize());
+
+//每页条数改变时触发 选择一页显示多少行
+
+function handleSizeChange(val) {
+    pageSize.value = val;
+}
+//当前页改变时触发 跳转其他页
+function currentChange(val) {
+    currentPage.value = val;
+}
+
+const tableList = computed(() => {
+    let result = tableData.value.slice(
+        (currentPage.value - 1) * pageSize.value,
+        currentPage.value * pageSize.value
+    )
+    return result
 })
 
 </script>
@@ -102,10 +183,34 @@ onMounted(() => {
                             <DocumentCopy />
                         </el-icon>全部导出</el-button>
                 </div>
-                <div>333</div>
+                <div class="choose-content">
+                    <div class="book" @click="toggleLayers('book')">
+                        <img v-if="active" src="@/assets/images/syView/book_off.png" />
+                        <img v-else src="@/assets/images/syView/book_on.png" />
+                    </div>
+                    <div class="map" @click="toggleLayers('map')">
+                        <img v-if="active" src="@/assets/images/syView/map_on.png" />
+                        <img v-else src="@/assets/images/syView/map_off.png" />
+                    </div>
+                </div>
             </div>
             <div class="container-down">
-                111
+                <MapView v-if="active"></MapView>
+                <div class="zhData" v-else>
+                    <el-config-provider :locale="locale">
+                        <el-table :data="tableList" style="width: 100%" stripe>
+                            <el-table-column prop="date" label="时间" min-width="20%" />
+                            <el-table-column prop="name" label="姓名" min-width="30%" />
+                            <el-table-column prop="genders" label="性别" min-width="20%" />
+                            <el-table-column prop="address" label="地址" min-width="30%" />
+                        </el-table>
+                        <div class="block">
+                            <el-pagination layout="->, total, prev, pager, next, jumper" :total="tableData.length"
+                                :page-size="pageSize" @current-change="currentChange" @size-change="handleSizeChange"
+                                :page-sizes="[1, 3, 6, 10]" :current-page="currentPage" background small></el-pagination>
+                        </div>
+                    </el-config-provider>
+                </div>
             </div>
         </el-dialog>
     </div>
@@ -149,7 +254,29 @@ onMounted(() => {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 15px 10px;
+        padding: 0.9rem 0.625rem;
+
+        .choose-content {
+            display: flex;
+            cursor: pointer;
+
+            .book,
+            .map {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0.4286rem 0.5rem;
+            }
+
+            .book {
+                border: 1px solid rgb(64, 158, 255);
+            }
+
+            .map {
+                border: 1px solid rgb(64, 158, 255);
+                background-color: #409EFF;
+            }
+        }
 
         ::v-deep .el-button {
             height: 28px;
@@ -163,8 +290,39 @@ onMounted(() => {
     }
 
     .container-down {
-       // padding: 10px 20px;
-        background-color: aqua;
+        width: 100%;
+        height: 55vh;
+        box-sizing: border-box;
+        z-index: 0;
+
+        .zhData {
+            .block {
+                position: absolute;
+                bottom: 1%;
+                right: 0.5%;
+            }
+
+            ::v-deep .el-table .el-table__cell {
+                text-align: center;
+            }
+
+            ::v-deep .el-table td.el-table__cell,
+            .el-table th.el-table__cell.is-leaf {
+                border-bottom: 1px solid #EBEEF5;
+            }
+
+            ::v-deep .el-table th,
+            ::v-deep .el-table .is-group th {
+                text-align: center;
+                background-color: #ebf1fd !important;
+                color: #00264b;
+            }
+
+            ::v-deep .el-pagination {
+                color: #303133;
+                font-weight: 700;
+            }
+        }
     }
 }
 

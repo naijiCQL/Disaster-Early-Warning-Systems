@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-11-29 20:45:00
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-17 16:21:09
+ * @LastEditTime: 2023-12-18 10:55:52
  * @FilePath: \DW-Systems\src\components\yzt\RightView.vue
  * @Description: 一张图右侧页面
 -->
@@ -69,7 +69,8 @@ let yjInfo = ref('')
 //获取该区域当天预警信息
 function getWarnInfo(params) {
     queryPageWarningInfo(params).then((res) => {
-        if (res && res.result) {
+        console.log(res.result)
+        if (res && res.result && res.result.total) {
             let info = res.result.list[0].warningProcessResult
             console.log(info)
         }

@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-11-26 19:36:15
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-11 16:23:34
+ * @LastEditTime: 2023-12-18 14:29:57
  * @FilePath: \DW-Systems\src\components\common\MapView.vue
  * @Description: openlayers底图
 -->
@@ -23,7 +23,7 @@ import Interaction from "@/ys/map/interaction";
 import { Fill, Style, Stroke, Text } from 'ol/style';
 import { Vector as VectorLayer } from "ol/layer";
 import { Vector as VectorSource } from "ol/source";
-import { defaults as defaultControls, FullScreen, OverviewMap, ScaleLine, MousePosition } from "ol/control"
+import { defaults as defaultControls, MousePosition } from "ol/control"
 import { yichangallMapJson } from '@/components/data/yichang'
 
 let map = ref(null) // 初始化地图
@@ -31,6 +31,10 @@ let geoLayer = null//初始化图层
 let interaction = null//初始化测量工具
 let zoom = null//初始化地图层级
 let center = null//初始化地图中心点坐标
+
+onMounted(() => {
+    initMap()
+})
 
 //初始化天地图
 function initMap() {
@@ -53,8 +57,8 @@ function initMap() {
             projection: "EPSG:4326",
             center: [111.293629, 30.698325],
             zoom: 9,//层级
-            minZoom: 8,//地图缩放最小级别
-            maxZoom: 14//地图缩放最大级别
+            //minZoom: 8,//地图缩放最小级别
+            maxZoom: 18//地图缩放最大级别
         }),
         controls: defaultControls({//默认控件
             //启用缩放控件
@@ -124,11 +128,6 @@ function addPolygonHoles() {
     }));
     geoLayer.getSource().addFeature(feature);
 }
-
-onMounted(() => {
-    initMap()
-})
-
 </script>
 
 <template>
