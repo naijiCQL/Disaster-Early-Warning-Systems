@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-07 11:46:51
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-15 11:10:05
+ * @LastEditTime: 2023-12-19 17:37:09
  * @FilePath: \DW-Systems\src\components\common\charts\BarChart.vue
  * @Description: 封装柱状图
 -->
@@ -127,8 +127,14 @@ function initChart() {
     //点击图表触发事件
     myChart.on('click', function (params) {
         if (params.seriesName === "监测点数(个)") {
-            console.log(params)
-            bus.emit('clickBarChart', params)
+            let xzCode = series.value[0].xzCode
+            let name = params.name
+            xzCode.forEach((element, key) => {
+                if (element.xzqhmc === name) {
+                    //将行政区域编码进行发送
+                    bus.emit('clickBarChart', xzCode[key].xzqh)
+                }
+            })
         }
     })
     //自适应不同屏幕时改变图表尺寸

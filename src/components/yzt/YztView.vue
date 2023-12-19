@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-11-26 19:36:15
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-11 16:28:19
+ * @LastEditTime: 2023-12-19 15:09:21
  * @FilePath: \DW-Systems\src\components\yzt\YztView.vue
  * @Description: 一张图页面
 -->
@@ -11,6 +11,7 @@ import { ref, onMounted } from 'vue';
 import LeftView from './LeftView.vue';
 import RightView from './RightView.vue';
 import MapView from '@/components/common/MapView.vue';
+import JcdglView from '../jcdgl/JcdglView.vue';
 
 </script>
 
@@ -20,15 +21,16 @@ import MapView from '@/components/common/MapView.vue';
             <div class="map-page">
                   <MapView></MapView>
             </div>
-            <!-- 左侧页面 -->
             <div>
-
+                  <!-- 左侧页面 -->
                   <LeftView></LeftView>
-            </div>
-            <!-- 右侧页面 -->
-            <div>
+                  <!-- 右侧页面 -->
                   <RightView></RightView>
+                  <!-- 监测点分布dialog页面 -->
+                  <JcdglView></JcdglView>
             </div>
+
+
       </div>
 </template>
 

@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-11-29 20:45:00
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-18 10:55:52
+ * @LastEditTime: 2023-12-19 16:07:29
  * @FilePath: \DW-Systems\src\components\yzt\RightView.vue
  * @Description: 一张图右侧页面
 -->
@@ -14,6 +14,7 @@ import { useCounterStore } from "@/store/mystore.js";
 import LegendView from '@/components/common/LegendView.vue'
 import PieChart from '@/components/common/charts/PieChart.vue'
 import { getCurrentDate } from "@/components/common/date/getTime.js"
+import MapTool from '../common/tools/MapTool.vue';
 
 //定义获取当天各级预警数量的参数
 let yjNumberParams = {
@@ -58,7 +59,6 @@ let noInfo = ref(true);
 function getYjNumber(params) {
     selectSbcgq(params).then((res) => {
         if (res && res.result) {
-            console.log(res.result)
             yjNumber.value = res.result
             //显示预警信息
             noInfo.value = false
@@ -69,7 +69,6 @@ let yjInfo = ref('')
 //获取该区域当天预警信息
 function getWarnInfo(params) {
     queryPageWarningInfo(params).then((res) => {
-        console.log(res.result)
         if (res && res.result && res.result.total) {
             let info = res.result.list[0].warningProcessResult
             console.log(info)
@@ -154,18 +153,7 @@ const position = ['30%', '55%', '40%', '50%']
         <div class="container" :style="rightPageStyle">
             <div class="first-container">
                 <div class="map-tool">
-                    <div class="tool" style="border-right: 1px solid rgb(211, 211, 211);">
-                        <img src="/markerIcon/tool/ss.png" title="搜索" />
-                    </div>
-                    <div class="tool" style="border-right: 1px solid rgb(211, 211, 211);">
-                        <img src="/markerIcon/tool/tc.png" title="图层管理" />
-                    </div>
-                    <div class="tool" style="border-right: 1px solid rgb(211, 211, 211);">
-                        <img src="/markerIcon/tool/cjl.png" title="距离量算" />
-                    </div>
-                    <div class="tool">
-                        <img src="/markerIcon/tool/cmj.png" title="面积量算" />
-                    </div>
+                    <map-tool :select="true"></map-tool>
                 </div>
                 <div class="legend">
                     <legend-view></legend-view>
@@ -296,20 +284,6 @@ const position = ['30%', '55%', '40%', '50%']
 
             .map-tool {
                 width: 90%;
-                display: flex;
-                align-items: center;
-                display: flex;
-                height: 28px;
-                border-radius: 3px;
-                background-color: rgba(255, 255, 255, 0.8);
-                justify-content: space-between;
-                line-height: 8px;
-                padding: 0 5px;
-                cursor: pointer;
-
-                .tool {
-                    width: 25%;
-                }
             }
 
             .legend {

@@ -1,18 +1,17 @@
 <!--
  * @Author: 陈巧龙
- * @Date: 2023-11-29 20:45:00
+ * @Date: 2023-12-19 15:00:48
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-19 17:44:45
- * @FilePath: \DW-Systems\src\components\dcpj\DcpjView.vue
- * @Description: 调查评价页面
+ * @LastEditTime: 2023-12-19 17:50:01
+ * @FilePath: \DW-Systems\src\components\jcdgl\JcdglView.vue
+ * @Description: 监测点管理dialog页面
 -->
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import MapView from '@/components/common/MapView.vue';
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import en from 'element-plus/dist/locale/en.mjs'
-import MapTool from '@/components/common/tools/MapTool.vue';
-import { ElMessage, ElMessageBox } from 'element-plus'
+import bus from 'vue3-eventbus'
 import { queryJcdlbByParams } from '@/api/jcsj/jcdgl'
 
 const language = ref('zh-cn')
@@ -55,10 +54,11 @@ const options = [
         label: 'Option3',
     }
 ]
+//初始化获取监测点信息数据参数
 let jcdxxParams = {
     "jcdbh": "",
     "jcdmc": "",
-    "userXzqh": "420527",
+    "userXzqh": "",
     "searchParams": "",
     "zhlxList": null,
     "monitoringUnitId": "",
@@ -67,8 +67,16 @@ let jcdxxParams = {
     "pageSize": 10
 }
 
-onMounted(() => {
+//触发点击事件后，打开dialog弹窗
+bus.on('clickBarChart', (res) => {
+    console.log(res)
+    jcdxxParams.userXzqh = res
     getJcdxxData(jcdxxParams)
+    dialogVisible.value = true
+})
+
+onMounted(() => {
+
 })
 
 //初始化图层开始显示的要素
@@ -150,44 +158,18 @@ const tableList = computed(() => {
 })
 //删除表格的某行数据
 function deleteRow(index) {
-    ElMessageBox.confirm(
-        '确定要删除吗?',
-        'Warning',
-        {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning',
-        }
-    )
-        .then(() => {
-            //删除数据
-            tableData.value.splice(index, 1)
-            ElMessage({
-                type: 'success',
-                message: '删除成功！',
-            })
-        })
-        .catch(() => {
-            ElMessage({
-                type: 'info',
-                message: '取消删除！',
-            })
-        })
+    tableData.value.splice(index, 1)
 }
-
+//获取监测点信息数据
 function getJcdxxData(params) {
     queryJcdlbByParams(params).then((res) => {
         console.log(res)
     })
 }
-
 </script>
 
 <template>
     <div class="main-page">
-        <el-button type="primary" @click="dialogVisible = true">
-            Click to open the Dialog
-        </el-button>
         <el-dialog v-model="dialogVisible" title="监测点信息列表" width="86%" top="4%" :close-on-click-modal='false'>
             <div class="container-top">
                 <span>行政区划：</span>
@@ -236,9 +218,6 @@ function getJcdxxData(params) {
             </div>
             <div class="container-down">
                 <MapView ref="olMap" v-if="active"></MapView>
-                <div class="map-tool" v-if="active">
-                    <map-tool></map-tool>
-                </div>
                 <div class="zhData" v-else>
                     <el-config-provider :locale="locale">
                         <el-table :data="tableList" style="width: 100%" :row-style="{ height: '20px' }" stripe>
@@ -274,9 +253,6 @@ function getJcdxxData(params) {
     width: 100%;
     height: 100%;
     margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 
     .container-top {
         background-color: rgb(245, 247, 250);
@@ -347,13 +323,6 @@ function getJcdxxData(params) {
         height: 56vh;
         box-sizing: border-box;
         z-index: 0;
-
-        .map-tool {
-            position: absolute;
-            top: calc(100% - 215px);
-            right: 1%;
-            width: 32%;
-        }
 
         .zhData {
             .block {

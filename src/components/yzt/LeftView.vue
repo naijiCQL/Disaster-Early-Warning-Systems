@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-08 09:44:43
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-15 11:23:02
+ * @LastEditTime: 2023-12-19 17:22:52
  * @FilePath: \DW-Systems\src\components\yzt\LeftView.vue
  * @Description: 一张图左侧区域
 -->
@@ -69,6 +69,7 @@ function geJcdData(params) {
         if (res && res.result) {
             let xzqhmc = []
             let jcdsm = []
+            let xzCode = res.result
             sum.value = 0
             res.result.forEach((e) => {
                 xzqhmc.push(e.xzqhmc)
@@ -78,6 +79,7 @@ function geJcdData(params) {
 
             xData.value = xzqhmc
             series2.value[0].data = jcdsm
+            series2.value[0].xzCode = xzCode
         }
     })
 }
@@ -116,6 +118,7 @@ const series2 = ref([
     {
         name: '监测点数(个)',
         data: [120, 248, 204, 490, 175, 120, 248, 204, 490, 175],
+        xzCode: {},
     },
 ])
 //饼图颜色

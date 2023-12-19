@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-11-26 19:36:15
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-18 14:29:57
+ * @LastEditTime: 2023-12-19 15:38:47
  * @FilePath: \DW-Systems\src\components\common\MapView.vue
  * @Description: openlayers底图
 -->
@@ -35,7 +35,6 @@ let center = null//初始化地图中心点坐标
 onMounted(() => {
     initMap()
 })
-
 //初始化天地图
 function initMap() {
     //实例化显示鼠标经纬度控件
@@ -127,7 +126,9 @@ function addPolygonHoles() {
         }),
     }));
     geoLayer.getSource().addFeature(feature);
-}
+};
+// 主动向父组件暴露方法
+defineExpose({ initMap })
 </script>
 
 <template>
