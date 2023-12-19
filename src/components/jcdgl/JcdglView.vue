@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-19 15:00:48
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-19 17:50:01
+ * @LastEditTime: 2023-12-19 21:06:53
  * @FilePath: \DW-Systems\src\components\jcdgl\JcdglView.vue
  * @Description: 监测点管理dialog页面
 -->
@@ -78,7 +78,6 @@ bus.on('clickBarChart', (res) => {
 onMounted(() => {
 
 })
-
 //初始化图层开始显示的要素
 let active = ref(true)
 //根据不同的图层进行切换样式
@@ -96,36 +95,6 @@ function toggleLayers(activeLayer) {
         active.value = true
     }
 }
-
-const tableData = ref([]);
-
-for (let i = 0; i < 551; i++) {
-    const number = i + 1;
-    const randomDate = "2022-07-25";
-    const randomName = "第" + (i + 1) + "人";
-    const { randomAddress, randomGenders } = generateRandomAddress(); // 生成随机地址
-
-    tableData.value.push({
-        number: number,
-        date: randomDate,
-        name: randomName,
-        genders: randomGenders,
-        address: randomAddress
-    });
-}
-
-// 生成随机地址的函数
-function generateRandomAddress() {
-    const cities = ["北京", "上海", "广东", "河北", "云南", "浙江"];
-    const randomIndex = Math.floor(Math.random() * cities.length);
-    const randomAddress = cities[randomIndex];
-
-    const genders = ["男", "女"]
-    const randomGenders = genders[Math.floor(Math.random() * 2)]
-
-    return { randomAddress, randomGenders }
-}
-
 // 计算页面大小函数
 function calculatePageSize() {
     const screenHeight = (window.innerHeight * 0.85 - 40) / 60;
@@ -146,24 +115,41 @@ function handleSizeChange(val) {
 }
 //当前页改变时触发 跳转其他页
 function currentChange(val) {
+    console.log(val)
     currentPage.value = val;
+    loading.value = true
+    jcdxxParams.pageNum = val
+    getJcdxxData(jcdxxParams)
 }
-
-const tableList = computed(() => {
-    let result = tableData.value.slice(
-        (currentPage.value - 1) * pageSize.value,
-        currentPage.value * pageSize.value
-    )
-    return result
-})
 //删除表格的某行数据
 function deleteRow(index) {
     tableData.value.splice(index, 1)
 }
+//初始化加载状态
+const loading = ref(true)
+//初始化表格数据
+const tableData = ref([]);
+const totalNumber = ref(0)
 //获取监测点信息数据
 function getJcdxxData(params) {
     queryJcdlbByParams(params).then((res) => {
-        console.log(res)
+        if (res && res.result) {
+            totalNumber.value = res.result.total
+            loading.value = false
+            console.log(res.result.list)
+            const result = res.result.list
+            tableData.value = []
+            result.forEach((element, key) => {
+                tableData.value.push({
+                    number: key + ((currentPage.value - 1) * 10 + 1),
+                    jcdbh: element.jcaa02a015,
+                    jcdmc: element.jcaa02a030,
+                    position: element.jcaa02a050,
+                    zhlx: element.jcaa02a090,
+                    // jcdw: element.jcdwmc
+                })
+            });
+        }
     })
 }
 </script>
@@ -220,14 +206,15 @@ function getJcdxxData(params) {
                 <MapView ref="olMap" v-if="active"></MapView>
                 <div class="zhData" v-else>
                     <el-config-provider :locale="locale">
-                        <el-table :data="tableList" style="width: 100%" :row-style="{ height: '20px' }" stripe>
+                        <el-table v-loading="loading" :data="tableData" style="width: 100%" :row-style="{ height: '20px' }"
+                            stripe>
                             <el-table-column prop="number" label="序号" min-width="10%" />
-                            <el-table-column prop="date" label="监测点编号" min-width="20%" />
-                            <el-table-column prop="name" label="监测点名称" min-width="25%" />
-                            <el-table-column prop="genders" label="地理位置" min-width="25%" />
-                            <el-table-column prop="address" label="灾害类型" min-width="15%" />
-                            <el-table-column prop="date" label="监测单位" min-width="15%" />
-                            <el-table-column prop="number" label="操作" min-width="20%">
+                            <el-table-column prop="jcdbh" label="监测点编号" min-width="20%" />
+                            <el-table-column prop="jcdmc" label="监测点名称" min-width="25%" />
+                            <el-table-column prop="position" label="地理位置" min-width="25%" />
+                            <el-table-column prop="zhlx" label="灾害类型" min-width="15%" />
+                            <el-table-column prop="jcdw" label="监测单位" min-width="15%" />
+                            <el-table-column prop="cz" label="操作" min-width="20%">
                                 <template #default="scope">
                                     <el-button link type="primary" size="small" @click="handleClick">编辑</el-button>
                                     <el-button link type="danger" size="small"
@@ -236,7 +223,7 @@ function getJcdxxData(params) {
                             </el-table-column>
                         </el-table>
                         <div class="block">
-                            <el-pagination layout="->, total, prev, pager, next, jumper" :total="tableData.length"
+                            <el-pagination layout="->, total, prev, pager, next, jumper" :total="totalNumber"
                                 :page-size="pageSize" @current-change="currentChange" @size-change="handleSizeChange"
                                 :page-sizes="[1, 3, 6, 10]" :current-page="currentPage" background small></el-pagination>
                         </div>
