@@ -226,7 +226,7 @@ function deleteRow(index) {
                 </div>
             </div>
             <div class="container-down">
-                <MapView ref="olMap" v-if="active"></MapView>
+                <MapView ref="olMap" v-if="active" :id="'olMap4'"></MapView>
                 <div class="map-tool" v-if="active">
                     <map-tool></map-tool>
                 </div>

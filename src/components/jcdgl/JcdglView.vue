@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-19 15:00:48
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-20 17:44:37
+ * @LastEditTime: 2023-12-20 20:48:53
  * @FilePath: \DW-Systems\src\components\jcdgl\JcdglView.vue
  * @Description: 监测点管理dialog页面
 -->
@@ -85,7 +85,6 @@ onMounted(() => {
     getJcdwList()
     getXmmcList()
 })
-
 //初始化获取监测点分布信息数据的参数
 let jcdxxParams = {
     "jcdbh": "",
@@ -123,8 +122,6 @@ bus.on('clickBarChart', (res) => {
     getJcdxxData(jcdxxParams)
     //显示dialog页面
     dialogVisible.value = true
-    //清空灾害类型选择框所选择的数据
-    zhlxValue.value = ''
     //记录打开dialog窗口的类型
     currentType.value = true
 })
@@ -137,7 +134,6 @@ bus.on('clickPieChart', (res) => {
     //显示dialog页面
     dialogVisible.value = res
     //初始化显示点击的灾害类型
-    zhlxParams.zhlxList = ['01']
     zhlxOptions.forEach((element) => {
         if (element.label === useStore().zhlx) {
             zhlxParams.zhlxList = [element.value]
@@ -186,7 +182,6 @@ function handleSizeChange(val) {
 function currentChange(val) {
     console.log(val)
     currentPage.value = val;
-    loading.value = true
     jcdxxParams.pageNum = val
     getJcdxxData(jcdxxParams)
 }
@@ -227,6 +222,7 @@ const tableData = ref([]);
 const totalNumber = ref(0)
 //获取监测点信息数据
 function getJcdxxData(params) {
+    loading.value = true
     queryJcdlbByParams(params).then((res) => {
         tableData.value = []
         if (res && res.result) {
@@ -293,15 +289,42 @@ function getXmmcList(params) {
 }
 //选择检测单位触发事件
 function chooseJcdw() {
-    xmmcValue.value = ''
+    //根据单位匹配相应的项目名称
     getXmmcList(jcdwValue.value)
-    console.log(currentType.value)
+    //默认当前页为第一页
+    currentPage.value = 1
+    //每次点击后初始化显示第一页
+    jcdxxParams.pageNum = 1
+
+    if (currentType.value) {
+        jcdxxParams.monitoringUnitId = jcdwValue.value
+        //获取监测点表格数据
+        getJcdxxData(jcdxxParams)
+    } else {
+        zhlxParams.monitoringUnitId = jcdwValue.value
+        //获取监测点表格数据
+        getJcdxxData(zhlxParams)
+    }
+    jcdxxParams.monitoringUnitId = ''
+    zhlxParams.monitoringUnitId = ''
+}
+//关闭dielog的回调函数
+function handleClose() {
+    xzqhValue.value = ''
+    jcdmcInput.value = ''
+    zhlxValue.value = ''
+    jcdbhInput.value = ''
+    gjcInput.value = ''
+    jcdwValue.value = ''
+    xmmcValue.value = ''
+    dialogVisible.value = false
 }
 </script>
 
 <template>
     <div class="main-page">
-        <el-dialog v-model="dialogVisible" title="监测点信息列表" width="86%" top="4%" :close-on-click-modal='false'>
+        <el-dialog v-model="dialogVisible" title="监测点信息列表" width="86%" top="4%" :close-on-click-modal='false'
+            :before-close="handleClose">
             <div class="container-top">
                 <span>行政区划：</span>
                 <el-tree-select v-model="xzqhValue" :data="data" :render-after-expand="false" placeholder="请选择行政区划"
@@ -348,7 +371,7 @@ function chooseJcdw() {
                 </div>
             </div>
             <div class="container-down">
-                <MapView ref="olMap" v-if="active"></MapView>
+                <MapView ref="olMap" v-if="active" :id="'olMap3'"></MapView>
                 <div class="map-tool" v-if="active">
                     <map-tool></map-tool>
                 </div>

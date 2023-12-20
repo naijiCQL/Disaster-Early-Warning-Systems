@@ -13,7 +13,7 @@ import MapView from '../common/MapView.vue';
 
 <template>
       <div class="main-page">
-            <MapView></MapView>
+            <MapView :id="'olMap2'"></MapView>
       </div>
 </template>
 

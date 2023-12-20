@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-07 11:46:51
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-20 16:44:39
+ * @LastEditTime: 2023-12-20 20:01:05
  * @FilePath: \DW-Systems\src\components\common\charts\BarChart.vue
  * @Description: 封装柱状图
 -->

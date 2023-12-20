@@ -19,7 +19,7 @@ import JcdglView from '../jcdgl/JcdglView.vue';
       <div class="main-page">
             <!-- 底层地图页面 -->
             <div class="map-page">
-                  <MapView></MapView>
+                  <MapView :id="'olMap1'"></MapView>
             </div>
             <div>
                   <!-- 左侧页面 -->

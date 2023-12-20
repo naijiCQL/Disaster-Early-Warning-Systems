@@ -2,12 +2,19 @@
  * @Author: 陈巧龙
  * @Date: 2023-11-26 19:36:15
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-19 15:38:47
+ * @LastEditTime: 2023-12-20 20:08:49
  * @FilePath: \DW-Systems\src\components\common\MapView.vue
  * @Description: openlayers底图
 -->
+
+<template>
+    <div class="map-container">
+        <div class="olMap" :id="`olMap-${id}`"></div>
+    </div>
+</template>
+
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, defineProps } from 'vue'
 import "ol/ol.css";
 import Map from 'ol/Map'
 import View from 'ol/View'
@@ -32,6 +39,10 @@ let interaction = null//初始化测量工具
 let zoom = null//初始化地图层级
 let center = null//初始化地图中心点坐标
 
+const props = defineProps({
+    id: String,
+})
+
 onMounted(() => {
     initMap()
 })
@@ -51,7 +62,7 @@ function initMap() {
 
     //加载地图
     map = new Map({
-        target: "olMap",
+        target: `olMap-${props.id}`,
         view: new View({
             projection: "EPSG:4326",
             center: [111.293629, 30.698325],
@@ -130,14 +141,6 @@ function addPolygonHoles() {
 // 主动向父组件暴露方法
 defineExpose({ initMap })
 </script>
-
-<template>
-    <div class="map-container">
-        <div class="olMap" id="olMap">
-
-        </div>
-    </div>
-</template>
 
 <style scoped lang="scss">
 .map-container {
