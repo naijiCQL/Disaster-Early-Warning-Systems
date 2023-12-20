@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-08 09:44:43
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-19 17:22:52
+ * @LastEditTime: 2023-12-20 10:59:12
  * @FilePath: \DW-Systems\src\components\yzt\LeftView.vue
  * @Description: 一张图左侧区域
 -->
@@ -102,7 +102,7 @@ function getZhlxData(params) {
     })
 }
 //初始化横坐标数据
-let xData = ref(['市辖区', '夷陵区', '远安县', '兴山县', '秭归县', '长阳县', '五峰县', '宜都县', '当阳市', '枝江市'])
+const xData = ref(['市辖区', '夷陵区', '远安县', '兴山县', '秭归县', '长阳县', '五峰县', '宜都市', '当阳市', '枝江市'])
 //柱状体颜色
 const color1 = 'rgb(0,157,230)'
 const color2 = 'rgb(118,131,246)'

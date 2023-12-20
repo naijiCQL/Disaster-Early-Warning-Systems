@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-11-29 20:45:00
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-19 17:44:45
+ * @LastEditTime: 2023-12-20 11:01:50
  * @FilePath: \DW-Systems\src\components\dcpj\DcpjView.vue
  * @Description: 调查评价页面
 -->
@@ -13,7 +13,6 @@ import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import en from 'element-plus/dist/locale/en.mjs'
 import MapTool from '@/components/common/tools/MapTool.vue';
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { queryJcdlbByParams } from '@/api/jcsj/jcdgl'
 
 const language = ref('zh-cn')
 const locale = computed(() => (language.value === 'zh-cn' ? zhCn : en))
@@ -68,7 +67,6 @@ let jcdxxParams = {
 }
 
 onMounted(() => {
-    getJcdxxData(jcdxxParams)
 })
 
 //初始化图层开始显示的要素
@@ -174,13 +172,6 @@ function deleteRow(index) {
             })
         })
 }
-
-function getJcdxxData(params) {
-    queryJcdlbByParams(params).then((res) => {
-        console.log(res)
-    })
-}
-
 </script>
 
 <template>

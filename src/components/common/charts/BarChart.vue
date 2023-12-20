@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-07 11:46:51
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-19 17:37:09
+ * @LastEditTime: 2023-12-20 14:01:52
  * @FilePath: \DW-Systems\src\components\common\charts\BarChart.vue
  * @Description: 封装柱状图
 -->
@@ -26,6 +26,7 @@ const props = defineProps({
     top: String
 })
 const series = ref(props.series);
+
 //重绘图表函数
 const resizeHandler = () => {
     myChart.resize();
@@ -49,8 +50,6 @@ const cancalDebounce = debounce(resizeHandler, 500);
 function initChart() {
     //表格数据
     const seriesData = props.series
-    //x轴数据
-    const xData = props.xData
     //柱状体颜色
     const itemStyle = {
         color: props.color
@@ -95,7 +94,7 @@ function initChart() {
         },
         xAxis: {
             type: 'category',
-            data: xData || [],
+            data: props.xData || [],
             //用于配置坐标轴刻度标签的显示和样式
             axisLabel: {
                 rotate: 45, // 旋转角度，可以根据需要调整
@@ -131,6 +130,7 @@ function initChart() {
             let name = params.name
             xzCode.forEach((element, key) => {
                 if (element.xzqhmc === name) {
+                    console.log(xzCode[key].xzqh)
                     //将行政区域编码进行发送
                     bus.emit('clickBarChart', xzCode[key].xzqh)
                 }

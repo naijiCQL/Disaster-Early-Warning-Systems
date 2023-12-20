@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-11-29 20:45:00
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-19 16:07:29
+ * @LastEditTime: 2023-12-20 11:35:25
  * @FilePath: \DW-Systems\src\components\yzt\RightView.vue
  * @Description: 一张图右侧页面
 -->
@@ -262,6 +262,7 @@ const position = ['30%', '55%', '40%', '50%']
     width: 100%;
     height: 100%;
     margin: 0;
+    pointer-events: none;
 
     .container {
         width: 38%;
@@ -272,6 +273,7 @@ const position = ['30%', '55%', '40%', '50%']
         display: flex;
         align-items: center;
         transition: right 1s linear;
+        pointer-events: none;
 
         .first-container {
             width: 35%;
@@ -281,14 +283,17 @@ const position = ['30%', '55%', '40%', '50%']
             justify-content: space-between;
             padding-left: 10px;
             align-items: flex-end;
+            pointer-events: none;
 
             .map-tool {
                 width: 90%;
+                pointer-events: auto;
             }
 
             .legend {
                 height: 37%;
                 margin-bottom: 12px;
+                pointer-events: auto;
             }
         }
 
@@ -301,6 +306,7 @@ const position = ['30%', '55%', '40%', '50%']
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            pointer-events: auto;
         }
 
         .second-container {
@@ -309,6 +315,7 @@ const position = ['30%', '55%', '40%', '50%']
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            pointer-events: auto;
 
             .container-icon {
                 display: flex;
