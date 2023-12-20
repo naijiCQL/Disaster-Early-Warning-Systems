@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-07 15:57:09
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-15 22:35:10
+ * @LastEditTime: 2023-12-20 16:29:50
  * @FilePath: \DW-Systems\src\components\common\charts\PieChart.vue
  * @Description: 封装饼图
 -->
@@ -11,7 +11,9 @@
 </template>
    
 <script setup>
+import bus from 'vue3-eventbus'
 import * as echarts from 'echarts'
+import { useStore } from "@/store/mystore.js";
 import { ref, onMounted, onBeforeUnmount, defineProps, watch } from "vue";
 
 let myChart = null
@@ -43,7 +45,6 @@ const debounce = (fun, delay) => {
 };
 
 const cancalDebounce = debounce(resizeHandler, 500);
-
 //初始化echarts图表
 function initChart() {
     //表格数据
@@ -126,6 +127,14 @@ function initChart() {
     }
     //绘制图表
     myChart.setOption(option, true)
+    //点击图表触发事件
+    myChart.on('click', function (params) {
+        if (params.seriesName === "监测点数量") {
+            let name = params.name.split('(')[0]
+            useStore().getZhlx(name)
+            bus.emit('clickPieChart', true)
+        }
+    })
     //自适应不同屏幕时改变图表尺寸
     window.addEventListener('resize', cancalDebounce);
 }

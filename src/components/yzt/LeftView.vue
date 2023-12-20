@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-08 09:44:43
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-20 10:59:12
+ * @LastEditTime: 2023-12-20 14:29:56
  * @FilePath: \DW-Systems\src\components\yzt\LeftView.vue
  * @Description: 一张图左侧区域
 -->
@@ -10,15 +10,15 @@
 import bus from 'vue3-eventbus'
 import { storeToRefs } from "pinia";
 import { ref, onMounted } from 'vue'
-import { useCounterStore } from "@/store/mystore.js";
+import { useStore } from "@/store/mystore.js";
 import BarChart from '@/components/common/charts/BarChart.vue'
 import PieChart from '@/components/common/charts/PieChart.vue'
 import { getPreviousHourTime } from "@/components/common/date/getTime.js"
 import { countRainfallByDistrict, getJcdsmByXzqh, getJcdsByZhlx } from "@/api/sy";
 
-const counterStore = useCounterStore();
+const store = useStore();
 //解构出来pinai存储的值
-const { cityCode } = storeToRefs(counterStore);
+const { cityCode } = storeToRefs(store);
 //定义获取累计降雨量的初始参数
 let rainParams = {
     districtCode: cityCode.value,
@@ -69,8 +69,12 @@ function geJcdData(params) {
         if (res && res.result) {
             let xzqhmc = []
             let jcdsm = []
-            let xzCode = res.result
             sum.value = 0
+            //将各区县的行政编码进行保存
+            store.getXzCode(res.result.map(item => {
+                const { jcdsm, ...rest } = item;
+                return rest;
+            }))
             res.result.forEach((e) => {
                 xzqhmc.push(e.xzqhmc)
                 jcdsm.push(e.jcdsm)
@@ -79,7 +83,6 @@ function geJcdData(params) {
 
             xData.value = xzqhmc
             series2.value[0].data = jcdsm
-            series2.value[0].xzCode = xzCode
         }
     })
 }
@@ -118,7 +121,6 @@ const series2 = ref([
     {
         name: '监测点数(个)',
         data: [120, 248, 204, 490, 175, 120, 248, 204, 490, 175],
-        xzCode: {},
     },
 ])
 //饼图颜色

@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-07 11:46:51
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-20 14:01:52
+ * @LastEditTime: 2023-12-20 16:44:39
  * @FilePath: \DW-Systems\src\components\common\charts\BarChart.vue
  * @Description: 封装柱状图
 -->
@@ -11,6 +11,7 @@
 </template>
    
 <script setup>
+import { useStore } from "@/store/mystore.js";
 import * as echarts from 'echarts'
 import { ref, onMounted, onBeforeUnmount, defineProps, watch } from "vue";
 import bus from 'vue3-eventbus'
@@ -126,13 +127,13 @@ function initChart() {
     //点击图表触发事件
     myChart.on('click', function (params) {
         if (params.seriesName === "监测点数(个)") {
-            let xzCode = series.value[0].xzCode
+            let xzCode = useStore().xzCode
             let name = params.name
-            xzCode.forEach((element, key) => {
+            xzCode.forEach((element) => {
                 if (element.xzqhmc === name) {
-                    console.log(xzCode[key].xzqh)
+                    console.log(element.xzqh)
                     //将行政区域编码进行发送
-                    bus.emit('clickBarChart', xzCode[key].xzqh)
+                    bus.emit('clickBarChart', element.xzqh)
                 }
             })
         }

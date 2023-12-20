@@ -10,7 +10,7 @@
 import { ref, onMounted } from 'vue';
 import { queryCgqzxlByCs } from '@/api/zhzs'
 import { getFirst, selectSbcgq, queryPageWarningInfo } from "@/api/sy";
-import { useCounterStore } from "@/store/mystore.js";
+import { useStore } from "@/store/mystore.js";
 import LegendView from '@/components/common/LegendView.vue'
 import PieChart from '@/components/common/charts/PieChart.vue'
 import { getCurrentDate } from "@/components/common/date/getTime.js"
@@ -19,7 +19,7 @@ import MapTool from '../common/tools/MapTool.vue';
 //定义获取当天各级预警数量的参数
 let yjNumberParams = {
     "startTime": getCurrentDate(),
-    "userXzqh": useCounterStore().cityCode
+    "userXzqh": useStore().cityCode
 }
 //定义获取当天预警信息的参数
 let warnInfoParams = {

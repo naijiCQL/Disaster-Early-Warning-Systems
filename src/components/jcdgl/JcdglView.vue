@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-19 15:00:48
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-20 13:47:05
+ * @LastEditTime: 2023-12-20 17:44:37
  * @FilePath: \DW-Systems\src\components\jcdgl\JcdglView.vue
  * @Description: 监测点管理dialog页面
 -->
@@ -12,9 +12,10 @@ import MapView from '@/components/common/MapView.vue';
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import en from 'element-plus/dist/locale/en.mjs'
 import bus from 'vue3-eventbus'
-import { queryJcdlbByParams } from '@/api/jcsj/jcdgl'
+import { queryJcdlbByParams, listJcdw, listJcxm } from '@/api/jcsj/jcdgl'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import MapTool from '@/components/common/tools/MapTool.vue';
+import { useStore } from "@/store/mystore.js";
 
 const language = ref('zh-cn')
 const locale = computed(() => (language.value === 'zh-cn' ? zhCn : en))
@@ -27,7 +28,7 @@ const jcdbhInput = ref('')//初始化监测点编号输入框
 const gjcInput = ref('')//初始化关键字输入框
 const jcdwValue = ref('')//初始化检测单位选择框
 const xmmcValue = ref('')//初始化项目名称选择框
-
+//定义行政区划数据
 const data = [
     {
         value: '1',
@@ -46,22 +47,46 @@ const data = [
         ],
     },
 ]
-
-const options = [
+//定义灾害类型数据
+const zhlxOptions = [
     {
-        value: 'Option1',
-        label: 'Option1',
+        value: '07',
+        label: '地面沉降',
     },
     {
-        value: 'Option2',
-        label: 'Option2',
+        value: '06',
+        label: '地裂缝',
     },
     {
-        value: 'Option3',
-        label: 'Option3',
-    }
+        value: '04',
+        label: '地面塌陷',
+    },
+    {
+        value: '03',
+        label: '泥石流',
+    },
+    {
+        value: '02',
+        label: '崩塌',
+    },
+    {
+        value: '01',
+        label: '滑坡',
+    },
+    {
+        value: '00',
+        label: '不稳定斜坡',
+    },
 ]
-//初始化获取监测点信息数据参数
+const jcdwOptions = ref([])//初始化检测单位中选择框内的值
+const xmmcOptions = ref([])//初始化项目名称中选择框内的值
+
+onMounted(() => {
+    getJcdwList()
+    getXmmcList()
+})
+
+//初始化获取监测点分布信息数据的参数
 let jcdxxParams = {
     "jcdbh": "",
     "jcdmc": "",
@@ -73,17 +98,56 @@ let jcdxxParams = {
     "pageNum": 1,
     "pageSize": 10
 }
-//触发点击事件后，打开dialog弹窗
+//初始化获取灾害类型中监测点信息数据的参数
+let zhlxParams = {
+    "jcdbh": "",
+    "jcdmc": "",
+    "userXzqh": useStore().cityCode,
+    "searchParams": "",
+    "zhlxList": [],
+    "monitoringUnitId": "",
+    "projectId": "",
+    "pageNum": 1,
+    "pageSize": 10
+}
+const currentType = ref(true)//记录打开dialog窗口的类型，ture代表打开的监测点分布，false代表打开的是灾害类型
+//触发点击柱状图事件后，打开dialog弹窗
 bus.on('clickBarChart', (res) => {
+    //默认当前页为第一页
     currentPage.value = 1
+    //将行政编码保存进参数中
     jcdxxParams.userXzqh = res
+    //每次点击后初始化显示第一页
     jcdxxParams.pageNum = 1
+    //获取监测点表格数据
     getJcdxxData(jcdxxParams)
+    //显示dialog页面
     dialogVisible.value = true
+    //清空灾害类型选择框所选择的数据
+    zhlxValue.value = ''
+    //记录打开dialog窗口的类型
+    currentType.value = true
 })
-
-onMounted(() => {
-
+//触发点击饼图事件后，打开dialog弹窗
+bus.on('clickPieChart', (res) => {
+    //默认当前页为第一页
+    currentPage.value = 1
+    //每次点击后初始化显示第一页
+    jcdxxParams.pageNum = 1
+    //显示dialog页面
+    dialogVisible.value = res
+    //初始化显示点击的灾害类型
+    zhlxParams.zhlxList = ['01']
+    zhlxOptions.forEach((element) => {
+        if (element.label === useStore().zhlx) {
+            zhlxParams.zhlxList = [element.value]
+            zhlxValue.value = element.value
+            //获取监测点表格数据
+            getJcdxxData(zhlxParams)
+        }
+    })
+    //记录打开dialog窗口的类型
+    currentType.value = false
 })
 //初始化图层开始显示的要素
 let active = ref(true)
@@ -199,6 +263,40 @@ function showCellData(row, column) {
         console.log(row)
     }
 }
+//获取监测单位下拉列表数据
+function getJcdwList() {
+    listJcdw().then((res) => {
+        if (res && res.result) {
+            jcdwOptions.value = []
+            res.result.forEach((element) => {
+                jcdwOptions.value.push({
+                    value: element.csid,
+                    label: element.csmc
+                })
+            })
+        }
+    })
+}
+//获取项目名称下拉列表数据
+function getXmmcList(params) {
+    listJcxm(params).then((res) => {
+        if (res && res.result) {
+            xmmcOptions.value = []
+            res.result.forEach((element) => {
+                xmmcOptions.value.push({
+                    value: element.projectId,
+                    label: element.projectName
+                })
+            })
+        }
+    })
+}
+//选择检测单位触发事件
+function chooseJcdw() {
+    xmmcValue.value = ''
+    getXmmcList(jcdwValue.value)
+    console.log(currentType.value)
+}
 </script>
 
 <template>
@@ -214,17 +312,17 @@ function showCellData(row, column) {
                 <el-input v-model="jcdbhInput" placeholder="请输入监测点" clearable style="width: 10%" />
                 <span>灾害类型：</span>
                 <el-select v-model="zhlxValue" class="select1-style" placeholder="请选择灾害类型" :popper-append-to-body="false">
-                    <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
+                    <el-option v-for="item in zhlxOptions" :key="item.value" :label="item.label" :value="item.value" />
                 </el-select>
                 <span>关键字：</span>
                 <el-input v-model="gjcInput" placeholder="请输入关键字" clearable style="width: 9%" />
                 <span>检测单位：</span>
-                <el-select v-model="jcdwValue" placeholder="请输入检测单位" :popper-append-to-body="false">
-                    <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
+                <el-select v-model="jcdwValue" placeholder="请输入检测单位" :popper-append-to-body="false" @change="chooseJcdw">
+                    <el-option v-for="item in jcdwOptions" :key="item.value" :label="item.label" :value="item.value" />
                 </el-select>
                 <span>项目名称：</span>
                 <el-select v-model="xmmcValue" placeholder="请选择项目名称" :popper-append-to-body="false">
-                    <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
+                    <el-option v-for="item in xmmcOptions" :key="item.value" :label="item.label" :value="item.value" />
                 </el-select>
                 <el-button type="primary">查询</el-button>
                 <el-button>重置</el-button>
