@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-11-26 19:36:15
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-19 15:09:21
+ * @LastEditTime: 2023-12-21 16:19:19
  * @FilePath: \DW-Systems\src\components\yzt\YztView.vue
  * @Description: 一张图页面
 -->
@@ -13,13 +13,19 @@ import RightView from './RightView.vue';
 import MapView from '@/components/common/MapView.vue';
 import JcdglView from '../jcdgl/JcdglView.vue';
 
+const syOlMap = ref('')
+
+onMounted(()=>{
+      syOlMap.value.getLayerData()
+})
+
 </script>
 
 <template>
       <div class="main-page">
             <!-- 底层地图页面 -->
             <div class="map-page">
-                  <MapView :id="'olMap1'"></MapView>
+                  <MapView ref='syOlMap' :id="'olMap1'"></MapView>
             </div>
             <div>
                   <!-- 左侧页面 -->

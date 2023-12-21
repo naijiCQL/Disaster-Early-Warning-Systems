@@ -2,20 +2,20 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-19 15:00:48
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-20 20:48:53
+ * @LastEditTime: 2023-12-21 17:17:38
  * @FilePath: \DW-Systems\src\components\jcdgl\JcdglView.vue
  * @Description: 监测点管理dialog页面
 -->
 <script setup>
+import bus from 'vue3-eventbus'
+import { useStore } from "@/store/mystore.js";
 import { ref, onMounted, computed } from 'vue';
+import en from 'element-plus/dist/locale/en.mjs'
 import MapView from '@/components/common/MapView.vue';
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
-import en from 'element-plus/dist/locale/en.mjs'
-import bus from 'vue3-eventbus'
-import { queryJcdlbByParams, listJcdw, listJcxm } from '@/api/jcsj/jcdgl'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import MapTool from '@/components/common/tools/MapTool.vue';
-import { useStore } from "@/store/mystore.js";
+import { queryJcdlbByParams, listJcdw, listJcxm } from '@/api/jcsj/jcdgl'
 
 const language = ref('zh-cn')
 const locale = computed(() => (language.value === 'zh-cn' ? zhCn : en))
@@ -28,6 +28,7 @@ const jcdbhInput = ref('')//初始化监测点编号输入框
 const gjcInput = ref('')//初始化关键字输入框
 const jcdwValue = ref('')//初始化检测单位选择框
 const xmmcValue = ref('')//初始化项目名称选择框
+const olMap = ref('')//初始化olMap
 //定义行政区划数据
 const data = [
     {
@@ -91,11 +92,11 @@ let jcdxxParams = {
     "jcdmc": "",
     "userXzqh": "",
     "searchParams": "",
-    "zhlxList": null,
+    "zhlxList": [],
     "monitoringUnitId": "",
     "projectId": "",
-    "pageNum": 1,
-    "pageSize": 10
+    "pageNum": null,
+    "pageSize": null,
 }
 //初始化获取灾害类型中监测点信息数据的参数
 let zhlxParams = {
@@ -106,44 +107,36 @@ let zhlxParams = {
     "zhlxList": [],
     "monitoringUnitId": "",
     "projectId": "",
-    "pageNum": 1,
-    "pageSize": 10
+    "pageNum": null,
+    "pageSize": null
 }
 const currentType = ref(true)//记录打开dialog窗口的类型，ture代表打开的监测点分布，false代表打开的是灾害类型
 //触发点击柱状图事件后，打开dialog弹窗
 bus.on('clickBarChart', (res) => {
-    //默认当前页为第一页
-    currentPage.value = 1
     //将行政编码保存进参数中
     jcdxxParams.userXzqh = res
-    //每次点击后初始化显示第一页
-    jcdxxParams.pageNum = 1
-    //获取监测点表格数据
-    getJcdxxData(jcdxxParams)
     //显示dialog页面
     dialogVisible.value = true
     //记录打开dialog窗口的类型
     currentType.value = true
+    //将监测点分布数据全部进行获取
+    getAllJcdxxData(jcdxxParams)
 })
 //触发点击饼图事件后，打开dialog弹窗
 bus.on('clickPieChart', (res) => {
-    //默认当前页为第一页
-    currentPage.value = 1
-    //每次点击后初始化显示第一页
-    jcdxxParams.pageNum = 1
     //显示dialog页面
     dialogVisible.value = res
+    //记录打开dialog窗口的类型
+    currentType.value = false
     //初始化显示点击的灾害类型
     zhlxOptions.forEach((element) => {
         if (element.label === useStore().zhlx) {
             zhlxParams.zhlxList = [element.value]
             zhlxValue.value = element.value
-            //获取监测点表格数据
-            getJcdxxData(zhlxParams)
         }
     })
-    //记录打开dialog窗口的类型
-    currentType.value = false
+    //将灾害类型数据全部进行获取
+    getAllJcdxxData(zhlxParams)
 })
 //初始化图层开始显示的要素
 let active = ref(true)
@@ -155,11 +148,39 @@ function toggleLayers(activeLayer) {
     if (activeLayer === 'book') {
         book.style.backgroundColor = '#409EFF';
         map.style.backgroundColor = 'white';
-        active.value = false
+        active.value = false;
+        //默认当前页为第一页
+        currentPage.value = 1
+
+        if (currentType.value) {
+            //每次点击后初始化显示第一页
+            jcdxxParams.pageNum = 1
+            //显示十条数据
+            jcdxxParams.pageSize = 10
+            //获取监测点表格数据
+            getJcdxxData(jcdxxParams)
+        } else {
+            //每次点击后初始化显示第一页
+            zhlxParams.pageNum = 1
+            //显示十条数据
+            zhlxParams.pageSize = 10
+            //初始化显示点击的灾害类型
+            getJcdxxData(zhlxParams)
+        }
     } else {
         map.style.backgroundColor = '#409EFF';
         book.style.backgroundColor = 'white';
         active.value = true
+
+        if (currentType.value) {
+            jcdxxParams.pageNum = null
+            jcdxxParams.pageSize = null
+            getAllJcdxxData(jcdxxParams)
+        } else {
+            zhlxParams.pageNum = null
+            zhlxParams.pageSize = null
+            getAllJcdxxData(zhlxParams)
+        }
     }
 }
 // 计算页面大小函数
@@ -180,10 +201,14 @@ function handleSizeChange(val) {
 }
 //当前页改变时触发 跳转其他页
 function currentChange(val) {
-    console.log(val)
     currentPage.value = val;
-    jcdxxParams.pageNum = val
-    getJcdxxData(jcdxxParams)
+    if (currentType.value) {
+        jcdxxParams.pageNum = val
+        getJcdxxData(jcdxxParams)
+    } else {
+        zhlxParams.pageNum = val
+        getJcdxxData(zhlxParams)
+    }
 }
 //编辑每一行表格数据
 function handleClick() {
@@ -220,7 +245,7 @@ const loading = ref(true)
 //初始化表格数据
 const tableData = ref([]);
 const totalNumber = ref(0)
-//获取监测点信息数据
+//分页获取监测点信息数据
 function getJcdxxData(params) {
     loading.value = true
     queryJcdlbByParams(params).then((res) => {
@@ -244,6 +269,15 @@ function getJcdxxData(params) {
         }
     })
 }
+//整体全部获取监测点信息数据
+function getAllJcdxxData(params) {
+    queryJcdlbByParams(params).then((res) => {
+        if (res && res.result) {
+            const result = res.result.list
+            olMap.value.addMarker(result)
+        }
+    })
+}
 //设置特定列的文字样式
 function cellStyle({ columnIndex }) {
     if (columnIndex === 2 || columnIndex === 3) {
@@ -255,8 +289,10 @@ function cellStyle({ columnIndex }) {
 }
 //给表格的每个数据绑定事件，点击获取表格数据
 function showCellData(row, column) {
-    if (column.label === "监测点名称" || column.label === "地理位置") {
-        console.log(row)
+    if (column.label === "监测点名称") {
+        console.log(row.jcdmc)
+    } else if (column.label === "地理位置") {
+        console.log(row.position)
     }
 }
 //获取监测单位下拉列表数据
@@ -287,28 +323,51 @@ function getXmmcList(params) {
         }
     })
 }
-//选择检测单位触发事件
+//选择检测单位
 function chooseJcdw() {
     //根据单位匹配相应的项目名称
     getXmmcList(jcdwValue.value)
-    //默认当前页为第一页
-    currentPage.value = 1
-    //每次点击后初始化显示第一页
-    jcdxxParams.pageNum = 1
-
+    //清除项目名称的选择
+    xmmcValue.value = ''
     if (currentType.value) {
+        jcdxxParams.projectId = ''
         jcdxxParams.monitoringUnitId = jcdwValue.value
         //获取监测点表格数据
-        getJcdxxData(jcdxxParams)
+         getJcdxxData(jcdxxParams)
+        //getAllJcdxxData(jcdxxParams)
     } else {
+        zhlxParams.projectId = ''
         zhlxParams.monitoringUnitId = jcdwValue.value
         //获取监测点表格数据
         getJcdxxData(zhlxParams)
+        //getAllJcdxxData(zhlxParams)
     }
-    jcdxxParams.monitoringUnitId = ''
-    zhlxParams.monitoringUnitId = ''
 }
-//关闭dielog的回调函数
+//选择项目名称
+function chooseXmmc() {
+    if (currentType.value) {
+        jcdxxParams.projectId = xmmcValue.value
+        //获取监测点表格数据
+        getJcdxxData(jcdxxParams)
+    } else {
+        zhlxParams.projectId = xmmcValue.value
+        //获取监测点表格数据
+        getJcdxxData(zhlxParams)
+    }
+}
+//选择灾害类型
+function chooseZhlx() {
+    if (currentType.value) {
+        jcdxxParams.zhlxList = zhlxValue.value === "" ? [] : [zhlxValue.value];
+        //获取监测点表格数据
+        getJcdxxData(jcdxxParams)
+    } else {
+        zhlxParams.zhlxList = zhlxValue.value === "" ? [] : [zhlxValue.value];
+        //获取监测点表格数据
+        getJcdxxData(zhlxParams)
+    }
+}
+//关闭dielog的回调函数，并且将所选择的参数都进行重置
 function handleClose() {
     xzqhValue.value = ''
     jcdmcInput.value = ''
@@ -317,7 +376,18 @@ function handleClose() {
     gjcInput.value = ''
     jcdwValue.value = ''
     xmmcValue.value = ''
+    jcdxxParams.monitoringUnitId = ''
+    zhlxParams.monitoringUnitId = ''
+    jcdxxParams.projectId = ''
+    zhlxParams.projectId = ''
+    jcdxxParams.zhlxList = []
+    zhlxParams.zhlxList = []
     dialogVisible.value = false
+    const book = document.querySelector('.book');
+    const map = document.querySelector('.map');
+    map.style.backgroundColor = '#409EFF';
+    book.style.backgroundColor = 'white';
+    active.value = true
 }
 </script>
 
@@ -334,17 +404,20 @@ function handleClose() {
                 <span>监测点编号：</span>
                 <el-input v-model="jcdbhInput" placeholder="请输入监测点" clearable style="width: 10%" />
                 <span>灾害类型：</span>
-                <el-select v-model="zhlxValue" class="select1-style" placeholder="请选择灾害类型" :popper-append-to-body="false">
+                <el-select v-model="zhlxValue" class="select1-style" placeholder="请选择灾害类型" :popper-append-to-body="false"
+                    @change="chooseZhlx" clearable>
                     <el-option v-for="item in zhlxOptions" :key="item.value" :label="item.label" :value="item.value" />
                 </el-select>
                 <span>关键字：</span>
                 <el-input v-model="gjcInput" placeholder="请输入关键字" clearable style="width: 9%" />
                 <span>检测单位：</span>
-                <el-select v-model="jcdwValue" placeholder="请输入检测单位" :popper-append-to-body="false" @change="chooseJcdw">
+                <el-select v-model="jcdwValue" placeholder="请输入检测单位" :popper-append-to-body="false" @change="chooseJcdw"
+                    clearable>
                     <el-option v-for="item in jcdwOptions" :key="item.value" :label="item.label" :value="item.value" />
                 </el-select>
                 <span>项目名称：</span>
-                <el-select v-model="xmmcValue" placeholder="请选择项目名称" :popper-append-to-body="false">
+                <el-select v-model="xmmcValue" placeholder="请选择项目名称" :popper-append-to-body="false" @change="chooseXmmc"
+                    clearable>
                     <el-option v-for="item in xmmcOptions" :key="item.value" :label="item.label" :value="item.value" />
                 </el-select>
                 <el-button type="primary">查询</el-button>

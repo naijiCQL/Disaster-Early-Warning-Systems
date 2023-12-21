@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-11-29 20:45:00
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-20 11:01:50
+ * @LastEditTime: 2023-12-21 13:40:55
  * @FilePath: \DW-Systems\src\components\dcpj\DcpjView.vue
  * @Description: 调查评价页面
 -->
@@ -173,10 +173,9 @@ function deleteRow(index) {
         })
 }
 </script>
-
 <template>
     <div class="main-page">
-        <el-button type="primary" @click="dialogVisible = true">
+        <el-button type="primary" @click="openDialog">
             Click to open the Dialog
         </el-button>
         <el-dialog v-model="dialogVisible" title="监测点信息列表" width="86%" top="4%" :close-on-click-modal='false'>

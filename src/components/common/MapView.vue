@@ -2,19 +2,11 @@
  * @Author: 陈巧龙
  * @Date: 2023-11-26 19:36:15
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-20 20:08:49
+ * @LastEditTime: 2023-12-21 16:43:54
  * @FilePath: \DW-Systems\src\components\common\MapView.vue
  * @Description: openlayers底图
 -->
-
-<template>
-    <div class="map-container">
-        <div class="olMap" :id="`olMap-${id}`"></div>
-    </div>
-</template>
-
 <script setup>
-import { ref, onMounted, defineProps } from 'vue'
 import "ol/ol.css";
 import Map from 'ol/Map'
 import View from 'ol/View'
@@ -23,30 +15,41 @@ import XYZ from 'ol/source/XYZ';
 import Layer from "@/ys/map/layer";
 import * as Format from "ol/format";
 import { LinearRing } from "ol/geom";
+import Marker from "@/ys/map/marker";
 import TileLayer from 'ol/layer/Tile'
 import { format } from 'ol/coordinate';
 import { fromExtent } from "ol/geom/Polygon";
-import Interaction from "@/ys/map/interaction";
 import { Fill, Style, Stroke, Text } from 'ol/style';
 import { Vector as VectorLayer } from "ol/layer";
 import { Vector as VectorSource } from "ol/source";
 import { defaults as defaultControls, MousePosition } from "ol/control"
 import { yichangallMapJson } from '@/components/data/yichang'
+import { listLayerData } from '@/api/sy'
+import { ref, onMounted, defineProps } from 'vue'
 
 let map = ref(null) // 初始化地图
 let geoLayer = null//初始化图层
-let interaction = null//初始化测量工具
-let zoom = null//初始化地图层级
-let center = null//初始化地图中心点坐标
+
+let markerLayer = null;//创建一个存放marker的矢量图层
 
 const props = defineProps({
     id: String,
 })
 
+let layerParams = {
+    "keyWord": "",
+    "userXzqh": "4205",
+    "jcd": 1,
+    "qpyh": 0,
+    "yhd": 0,
+    "zlxm": 0
+}
+
 onMounted(() => {
     initMap()
 })
-//初始化天地图
+
+//初始化地图
 function initMap() {
     //实例化显示鼠标经纬度控件
     let mousePositionControl = new MousePosition({
@@ -107,6 +110,8 @@ function initMap() {
     map.addLayer(geoLayer);
     //添加遮罩
     addPolygonHoles()
+    //获取标注数据
+    //getLayerData(layerParams)
 }
 
 /**
@@ -133,14 +138,56 @@ function addPolygonHoles() {
         }),
         stroke: new Stroke({
             color: "#ffffff",
-            width: 1,
+            width: 1.5,
         }),
     }));
     geoLayer.getSource().addFeature(feature);
 };
+//添加各灾害类型的静态标注
+function addMarker(items) {
+    //在地图上添加Mark
+    let layer = new Layer(map)
+    let marker = new Marker(map)
+    //创建一个存放marker的矢量图层
+    markerLayer = layer.createVectorLayer('markerLayer')
+    //再添加之前先进行清空图层
+    markerLayer.getSource().clear();
+
+    items.forEach((item) => {
+        let long = item.longitude
+        let lat = item.latitude
+        let zhlx = item.jcaa02a090
+
+        //marker的图片路径
+        let imgUrl = `/markerIcon/zhlx/${zhlx}绿.png`;
+        //在地图上添加marker
+        marker.addMarker(long, lat, markerLayer, { imgUrl: imgUrl, scale: 0.61 }, item);
+    })
+
+}
+//获取地图图层初始化标注数据
+function getLayerData() {
+    listLayerData(layerParams).then((res) => {
+        res.result.jcdList.forEach((item) => {
+            item.longitude = item.jd;
+            item.latitude = item.wd;
+            item.jcaa02a090 = item.zhlx
+        })
+
+        console.log(res.result.jcdList)
+
+        addMarker(res.result.jcdList)
+    })
+}
 // 主动向父组件暴露方法
-defineExpose({ initMap })
+defineExpose({ getLayerData, addMarker })
 </script>
+
+<template>
+    <div class="map-container">
+        <div class="olMap" :id="`olMap-${id}`"></div>
+    </div>
+</template>
 
 <style scoped lang="scss">
 .map-container {
