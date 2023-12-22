@@ -2,74 +2,69 @@
  * @Author: 陈巧龙
  * @Date: 2023-11-29 20:45:00
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-22 15:33:17
- * @FilePath: \DW-Systems\src\components\dcpj\DcpjView.vue
- * @Description: 调查评价页面
+ * @LastEditTime: 2023-12-22 16:52:51
+ * @FilePath: \DW-Systems\src\components\common\dialog\YjxxglView.vue
+ * @Description: 预警信息列表页面
 -->
 <script setup>
+import bus from 'vue3-eventbus'
 import { ref, onMounted, computed } from 'vue';
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import en from 'element-plus/dist/locale/en.mjs'
+import { queryPageWarningInfo } from "@/api/sy";
+
 
 const language = ref('zh-cn')
 const locale = computed(() => (language.value === 'zh-cn' ? zhCn : en))
-//初始化窗口不进行显示
-const dialogVisible = ref(false)
 
-const value = ref()
-const timeValue1 = ref('')
-const timeValue2 = ref('')
-
-
+const dialogVisible = ref(false)//初始化窗口不进行显示
+const timeValue1 = ref('')//用于保存选择开始时间的值
+const timeValue2 = ref('')//用于保存选择结束时间的值
+const yjdjValue = ref('')//用于保存预警等级选择框所选择的值
 const options = [
-    {
-        value: 'Option1',
-        label: 'Option1',
+{
+        value: "C4",
+        color: "rgb(248, 68, 95)",
+        label: "红"
     },
     {
-        value: 'Option2',
-        label: 'Option2',
+        value: "C3",
+        color: "rgb(251,141,51)",
+        label: "橙"
     },
     {
-        value: 'Option3',
-        label: 'Option3',
+        value: "C2",
+        color: "rgb(245, 209, 69)",
+        label: "黄"
+    },
+    {
+        value: "C1",
+        color: "rgb(43, 164, 232)",
+        label: "蓝"
     }
-]
-
+]//初始化预警等级下拉列表数据
+const tableData = ref([]);//初始化表格数据
+//定义获取当天预警信息的参数
+let warnInfoParams = {
+    "disasterPointName": "",
+    "disasterPointType": "",
+    "pageNum": 1,
+    "pageSize": 6,
+    "userXzqh": "",
+    "startTime": "",
+    "endTime": "",
+    "warningLevel": "",
+    "warningProcessStatus": "A"
+}
 
 onMounted(() => {
+    //获取预警信息
+    getWarnInfo(warnInfoParams)
 })
-
-
-const tableData = ref([]);
-
-for (let i = 0; i < 100; i++) {
-    const number = i + 1;
-    const randomDate = "2022-07-25";
-    const randomName = "第" + (i + 1) + "人";
-    const { randomAddress, randomGenders } = generateRandomAddress(); // 生成随机地址
-
-    tableData.value.push({
-        number: number,
-        date: randomDate,
-        name: randomName,
-        genders: randomGenders,
-        address: randomAddress
-    });
-}
-
-// 生成随机地址的函数
-function generateRandomAddress() {
-    const cities = ["北京", "上海", "广东", "河北", "云南", "浙江"];
-    const randomIndex = Math.floor(Math.random() * cities.length);
-    const randomAddress = cities[randomIndex];
-
-    const genders = ["男", "女"]
-    const randomGenders = genders[Math.floor(Math.random() * 2)]
-
-    return { randomAddress, randomGenders }
-}
-
+//打开预警信息列表
+bus.on('clickMoreInfo', (res) => {
+    dialogVisible.value = res
+})
 // 计算页面大小函数
 function calculatePageSize() {
     const screenHeight = (window.innerHeight * 0.85 - 40) / 60;
@@ -82,8 +77,7 @@ window.addEventListener('resize', () => {
 });
 
 const currentPage = ref(1)//当前页
-const pageSize = ref(calculatePageSize());
-
+const pageSize = ref(calculatePageSize());//计算页面的大小计算显示的数据条数
 //每页条数改变时触发 选择一页显示多少行
 function handleSizeChange(val) {
     pageSize.value = val;
@@ -92,19 +86,52 @@ function handleSizeChange(val) {
 function currentChange(val) {
     currentPage.value = val;
 }
-const tableList = computed(() => {
-    let result = tableData.value.slice(
-        (currentPage.value - 1) * pageSize.value,
-        currentPage.value * pageSize.value
-    )
-    return result
-})
+//初始化加载状态
+const loading = ref(true)
+const totalNumber = ref(0)
+//得到预警监测信息
+function getWarnInfo(params) {
+    loading.value = true
+    queryPageWarningInfo(params).then((res) => {
+        if (res && res.result.total) {
+            totalNumber.value = res.result.total
+            loading.value = false
+            res.result.list.forEach((item, key) => {
+                tableData.value.push({
+                    number: key + ((currentPage.value - 1) * 10 + 1),//根据当前页计算序号
+                    name: item.monitorPointName,
+                    address: item.adress,
+                    //grade:item.
+                    time: item.warningTime,
+                })
+            })
+        }
+    })
+}
+//编辑每一行表格数据
+function handleClick() {
+    console.log('编辑表格')
+}
+//设置特定列的文字样式
+function cellStyle({ columnIndex }) {
+    if (columnIndex === 1) {
+        return {
+            color: '#409eff',
+            cursor: 'pointer'
+        }
+    }
+}
+//给表格的每个数据绑定事件，点击获取表格数据
+function showCellData(row, column) {
+    if (column.label === "监测点名称") {
+        console.log(row.jcdmc)
+    } else if (column.label === "地理位置") {
+        console.log(row.position)
+    }
+}
 </script>
 <template>
     <div class="main-page">
-        <el-button type="primary" @click="dialogVisible = true">
-            Click to open the Dialog
-        </el-button>
         <el-dialog v-model="dialogVisible" title="预警信息列表" width="71%" top="5%" :close-on-click-modal='false'>
             <div class="container-top">
                 <div class="date-picker">
@@ -114,7 +141,7 @@ const tableList = computed(() => {
                 <div class="date-picker">
                     <el-date-picker v-model="timeValue2" type="date" placeholder="结束时间" />
                 </div>
-                <el-select v-model="value" placeholder="预警等级" :popper-append-to-body="false">
+                <el-select v-model="yjdjValue" placeholder="预警等级" :popper-append-to-body="false">
                     <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
                 </el-select>
                 <el-button type="primary">查询</el-button>
@@ -122,10 +149,11 @@ const tableList = computed(() => {
             <div class="container-down">
                 <div class="zhData">
                     <el-config-provider :locale="locale">
-                        <el-table :data="tableList" style="width: 100%" :row-style="{ height: '20px' }" stripe>
+                        <el-table :data="tableData" style="width: 100%" :row-style="{ height: '20px' }" stripe
+                            :cell-style="cellStyle" @cell-click="showCellData">
                             <el-table-column prop="number" label="序号" min-width="10%" />
                             <el-table-column prop="name" label="监测点名称" min-width="25%" />
-                            <el-table-column prop="position" label="地理位置" min-width="25%" />
+                            <el-table-column prop="address" label="地理位置" min-width="25%" />
                             <el-table-column prop="grade" label="预警等级" min-width="15%" />
                             <el-table-column prop="time" label="预警发布时间" min-width="15%" />
                             <el-table-column prop="cz" label="操作" min-width="15%">
@@ -135,7 +163,7 @@ const tableList = computed(() => {
                             </el-table-column>
                         </el-table>
                         <div class="block">
-                            <el-pagination layout="->, total, prev, pager, next, jumper" :total="tableData.length"
+                            <el-pagination layout="->, total, prev, pager, next, jumper" :total="totalNumber"
                                 :page-size="pageSize" @current-change="currentChange" @size-change="handleSizeChange"
                                 :page-sizes="[1, 3, 6, 10]" :current-page="currentPage" background small></el-pagination>
                         </div>
@@ -163,7 +191,7 @@ const tableList = computed(() => {
         align-items: center;
         flex-wrap: wrap;
 
-        span{
+        span {
             margin: 5px;
         }
 
@@ -244,6 +272,7 @@ const tableList = computed(() => {
 ::v-deep .el-input__inner {
     height: 25px;
     line-height: 28px;
+    font-size: 12px;
 }
 
 ::v-deep .el-dialog__header {

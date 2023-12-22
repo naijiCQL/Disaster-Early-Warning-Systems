@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-11-26 19:36:15
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-21 16:43:54
+ * @LastEditTime: 2023-12-22 10:14:23
  * @FilePath: \DW-Systems\src\components\common\MapView.vue
  * @Description: openlayers底图
 -->
@@ -156,10 +156,10 @@ function addMarker(items) {
     items.forEach((item) => {
         let long = item.longitude
         let lat = item.latitude
-        let zhlx = item.jcaa02a090
+        let zhlx = item.jcaa02a090 + (item.yjdj ? item.yjdj : "绿")
 
         //marker的图片路径
-        let imgUrl = `/markerIcon/zhlx/${zhlx}绿.png`;
+        let imgUrl = `/markerIcon/zhlx/${zhlx}.png`;
         //在地图上添加marker
         marker.addMarker(long, lat, markerLayer, { imgUrl: imgUrl, scale: 0.61 }, item);
     })
@@ -173,14 +173,11 @@ function getLayerData() {
             item.latitude = item.wd;
             item.jcaa02a090 = item.zhlx
         })
-
-        console.log(res.result.jcdList)
-
         addMarker(res.result.jcdList)
     })
 }
 // 主动向父组件暴露方法
-defineExpose({ getLayerData, addMarker })
+defineExpose({ initMap, getLayerData, addMarker })
 </script>
 
 <template>
@@ -193,8 +190,6 @@ defineExpose({ getLayerData, addMarker })
 .map-container {
     width: 100%;
     height: 100%;
-
-
 }
 
 .olMap {

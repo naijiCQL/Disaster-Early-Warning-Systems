@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-11-26 19:36:15
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-21 16:19:19
+ * @LastEditTime: 2023-12-22 15:35:49
  * @FilePath: \DW-Systems\src\components\yzt\YztView.vue
  * @Description: 一张图页面
 -->
@@ -11,11 +11,12 @@ import { ref, onMounted } from 'vue';
 import LeftView from './LeftView.vue';
 import RightView from './RightView.vue';
 import MapView from '@/components/common/MapView.vue';
-import JcdglView from '../jcdgl/JcdglView.vue';
+import JcdglView from '@/components/common/dialog/JcdglView.vue';
+import YjxxglView from '@/components/common/dialog/YjxxglView.vue';
 
 const syOlMap = ref('')
 
-onMounted(()=>{
+onMounted(() => {
       syOlMap.value.getLayerData()
 })
 
@@ -32,8 +33,10 @@ onMounted(()=>{
                   <LeftView></LeftView>
                   <!-- 右侧页面 -->
                   <RightView></RightView>
-                  <!-- 监测点分布dialog页面 -->
+                  <!-- 监测点信息列表页面 -->
                   <JcdglView></JcdglView>
+                  <!-- 预警信息列表 -->
+                  <YjxxglView></YjxxglView>
             </div>
 
 

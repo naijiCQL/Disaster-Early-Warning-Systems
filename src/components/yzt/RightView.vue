@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-11-29 20:45:00
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-20 11:35:25
+ * @LastEditTime: 2023-12-22 16:04:29
  * @FilePath: \DW-Systems\src\components\yzt\RightView.vue
  * @Description: 一张图右侧页面
 -->
@@ -15,6 +15,8 @@ import LegendView from '@/components/common/LegendView.vue'
 import PieChart from '@/components/common/charts/PieChart.vue'
 import { getCurrentDate } from "@/components/common/date/getTime.js"
 import MapTool from '../common/tools/MapTool.vue';
+import { listByDicCode } from '@/api/common/index.js'
+import bus from 'vue3-eventbus'
 
 //定义获取当天各级预警数量的参数
 let yjNumberParams = {
@@ -33,7 +35,29 @@ let warnInfoParams = {
     "warningLevel": "",
     "warningProcessStatus": "A"
 }
-
+//初始化颜色和等级对应
+let gradeColor = [
+    {
+        "code": "C4",
+        "color": "rgb(248, 68, 95)",
+        "value": "红"
+    },
+    {
+        "code": "C3",
+        "color": "rgb(251,141,51)",
+        "value": "橙"
+    },
+    {
+        "code": "C2",
+        "color": "rgb(245, 209, 69)",
+        "value": "黄"
+    },
+    {
+        "code": "C1",
+        "color": "rgb(43, 164, 232)",
+        "value": "蓝"
+    }
+]
 onMounted(() => {
     //默认窗口显示
     rightPageStyle.value.right = 0;
@@ -65,13 +89,64 @@ function getYjNumber(params) {
         }
     })
 }
-let yjInfo = ref('')
 //获取该区域当天预警信息
 function getWarnInfo(params) {
     queryPageWarningInfo(params).then((res) => {
         if (res && res.result && res.result.total) {
-            let info = res.result.list[0].warningProcessResult
-            console.log(info)
+            const warnContainer = document.getElementById('yjInfo');
+            res.result.list.forEach((item) => {
+                const warnInfo = document.createElement('div')
+                warnInfo.className = 'warn-info-container'
+
+                const label = document.createElement('label')
+                const span = document.createElement('span')
+
+                const warningLevel = item.warningLevel
+                const warningTime = item.warningTime
+                const monitorPointName = item.monitorPointName
+
+                gradeColor.forEach((item) => {
+                    if (warningLevel === item.code) {
+                        label.style.backgroundColor = item.color
+                        span.title = `${warningTime}${monitorPointName}检测点发布${item.value}色预警`
+                        span.textContent = `${warningTime}${monitorPointName}检测点发布${item.value}色预警`
+                    }
+                })
+
+                warnInfo.appendChild(label)
+                warnInfo.appendChild(span)
+                warnContainer.appendChild(warnInfo)
+
+            })
+
+            // 获取所有 .marker 元素的引用
+            const elements = document.querySelectorAll('.warn-info-container');
+            elements.forEach((item) => {
+                item.style.margin = '3px 0'
+                item.style.display = 'flex'
+                item.style.alignItems = 'center';
+
+                const labelElement = item.querySelector('label')
+                if (labelElement) {
+                    labelElement.style.display = 'inline-block'
+                    labelElement.style.width = '13px'
+                    labelElement.style.height = '13px'
+                    labelElement.style.borderRadius = '50%'
+                    labelElement.style.margin = '0 8px'
+                    labelElement.style.verticalAlign = 'middle'
+                }
+
+                const spanElement = item.querySelector('span');
+                if (spanElement) {
+                    spanElement.style.width = 'calc(100% - 15px)'
+                    spanElement.style.whiteSpace = 'nowrap';/* 不换行 */
+                    spanElement.style.overflow = 'hidden'; /* 隐藏溢出部分 */
+                    spanElement.style.textOverflow = 'ellipsis'; /* 显示省略号 */
+                    spanElement.style.display = 'inline-block';
+                    spanElement.style.cursor = 'pointer';
+                }
+
+            })
         }
     })
 }
@@ -146,6 +221,16 @@ const series3 = ref([
 
 const position = ['30%', '55%', '40%', '50%']
 
+function getDicData(param) {
+    listByDicCode(param).then((res) => {
+        console.log(res)
+    })
+}
+//点击获取更多信息
+function getMoreInfo() {
+    bus.emit('clickMoreInfo', true)
+}
+
 </script>
 
 <template>
@@ -209,7 +294,7 @@ const position = ['30%', '55%', '40%', '50%']
                             </div>
                         </div>
                     </div>
-                    <div class="more">
+                    <div class="more" @click="getMoreInfo">
                         更多>>
                     </div>
                     <div style="height: 57%;">
@@ -218,7 +303,6 @@ const position = ['30%', '55%', '40%', '50%']
                             <span>暂无预警信息</span>
                         </div>
                         <div id="yjInfo" v-else>
-                            有预警信息
                         </div>
                     </div>
                 </div>
@@ -422,12 +506,11 @@ const position = ['30%', '55%', '40%', '50%']
                 }
 
                 #yjInfo {
-                    padding-top: 25px;
+                    padding-top: 30px;
                     display: flex;
-                    padding-left: 5px;
+                    flex-direction: column;
                     color: rgb(102, 102, 102);
                     font-size: 13px;
-                    vertical-align: middle;
                 }
             }
 

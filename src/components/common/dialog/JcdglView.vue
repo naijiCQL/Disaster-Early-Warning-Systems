@@ -2,9 +2,9 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-19 15:00:48
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-21 17:17:38
- * @FilePath: \DW-Systems\src\components\jcdgl\JcdglView.vue
- * @Description: 监测点管理dialog页面
+ * @LastEditTime: 2023-12-22 15:35:30
+ * @FilePath: \DW-Systems\src\components\common\dialog\JcdglView.vue
+ * @Description: 监测点信息列表页面
 -->
 <script setup>
 import bus from 'vue3-eventbus'
@@ -172,6 +172,7 @@ function toggleLayers(activeLayer) {
         book.style.backgroundColor = 'white';
         active.value = true
 
+        //重新根据条件进行渲染
         if (currentType.value) {
             jcdxxParams.pageNum = null
             jcdxxParams.pageSize = null
@@ -333,7 +334,7 @@ function chooseJcdw() {
         jcdxxParams.projectId = ''
         jcdxxParams.monitoringUnitId = jcdwValue.value
         //获取监测点表格数据
-         getJcdxxData(jcdxxParams)
+        getJcdxxData(jcdxxParams)
         //getAllJcdxxData(jcdxxParams)
     } else {
         zhlxParams.projectId = ''
@@ -394,7 +395,7 @@ function handleClose() {
 <template>
     <div class="main-page">
         <el-dialog v-model="dialogVisible" title="监测点信息列表" width="86%" top="4%" :close-on-click-modal='false'
-            :before-close="handleClose">
+            :before-close="handleClose" :destroy-on-close='true'>
             <div class="container-top">
                 <span>行政区划：</span>
                 <el-tree-select v-model="xzqhValue" :data="data" :render-after-expand="false" placeholder="请选择行政区划"
@@ -598,18 +599,21 @@ function handleClose() {
 .treeSelect-style {
     ::v-deep .el-input__inner {
         width: 130px;
+        font-size: 12px;
     }
 }
 
 .select1-style {
     ::v-deep .el-input__inner {
         width: 100px;
+        font-size: 12px;
     }
 }
 
 ::v-deep .el-input__inner {
     height: 28px;
     line-height: 28px;
+    font-size: 12px;
 }
 
 ::v-deep .el-dialog__header {
