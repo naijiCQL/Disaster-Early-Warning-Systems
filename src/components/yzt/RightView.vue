@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-11-29 20:45:00
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-22 16:04:29
+ * @LastEditTime: 2023-12-25 10:53:00
  * @FilePath: \DW-Systems\src\components\yzt\RightView.vue
  * @Description: 一张图右侧页面
 -->
@@ -150,6 +150,8 @@ function getWarnInfo(params) {
         }
     })
 }
+//默认监测设备显示数量
+let jcsbData = ref({})
 //获取监测设备数据（在线、离线）
 function getJcsbData() {
     getFirst().then((res) => {
@@ -162,9 +164,9 @@ function getJcsbData() {
 function getJcsbType() {
     queryCgqzxlByCs().then((res) => {
         if (res && res.result) {
-            let jcsbData = []
+            let jcsbAllData = []
             res.result.forEach((e, index) => {
-                jcsbData.push({
+                jcsbAllData.push({
                     value: e.total,
                     name: e.lx,
                     //添加颜色标签
@@ -173,12 +175,10 @@ function getJcsbType() {
                     }
                 })
             })
-            series3.value[0].data = jcsbData
+            series3.value[0].data = jcsbAllData
         }
     })
 }
-//默认监测设备显示数量
-let jcsbData = ref({})
 //初始化left-page的样式
 const rightPageStyle = ref({
     right: '-23.1%'
@@ -229,6 +229,10 @@ function getDicData(param) {
 //点击获取更多信息
 function getMoreInfo() {
     bus.emit('clickMoreInfo', true)
+}
+//打开检测设备页面
+function showJcsbView(param) {
+    bus.emit('clickJcsbView', param)
 }
 
 </script>
@@ -314,11 +318,11 @@ function getMoreInfo() {
                         <span>检测设备</span>
                     </div>
                     <div class="jcsb-container">
-                        <div class="jcsb-info">
+                        <div class="jcsb-info" @click="showJcsbView('')">
                             <span>设备总数</span>
                             <span>{{ jcsbData.deviceNum }}</span>
                         </div>
-                        <div class="jcsb-info">
+                        <div class="jcsb-info" @click="showJcsbView('1')">
                             <span>在线</span>
                             <span>{{ jcsbData.online }}</span>
                         </div>
@@ -328,7 +332,7 @@ function getMoreInfo() {
                         </div>
                         <div class="jcsb-info">
                             <span>在线率</span>
-                            <span>{{ Number(jcsbData.deviceOnline) * 100 }}%</span>
+                            <span>{{ (Number(jcsbData.deviceOnline) * 100).toFixed(2) }}%</span>
                         </div>
                     </div>
                     <div class="right-pie-chart">

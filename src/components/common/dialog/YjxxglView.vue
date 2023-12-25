@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-11-29 20:45:00
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-22 16:52:51
+ * @LastEditTime: 2023-12-25 09:28:45
  * @FilePath: \DW-Systems\src\components\common\dialog\YjxxglView.vue
  * @Description: 预警信息列表页面
 -->
@@ -21,8 +21,9 @@ const dialogVisible = ref(false)//初始化窗口不进行显示
 const timeValue1 = ref('')//用于保存选择开始时间的值
 const timeValue2 = ref('')//用于保存选择结束时间的值
 const yjdjValue = ref('')//用于保存预警等级选择框所选择的值
+//初始化预警等级下拉列表数据
 const options = [
-{
+    {
         value: "C4",
         color: "rgb(248, 68, 95)",
         label: "红"
@@ -42,7 +43,7 @@ const options = [
         color: "rgb(43, 164, 232)",
         label: "蓝"
     }
-]//初始化预警等级下拉列表数据
+]
 const tableData = ref([]);//初始化表格数据
 //定义获取当天预警信息的参数
 let warnInfoParams = {
@@ -151,11 +152,11 @@ function showCellData(row, column) {
                     <el-config-provider :locale="locale">
                         <el-table :data="tableData" style="width: 100%" :row-style="{ height: '20px' }" stripe
                             :cell-style="cellStyle" @cell-click="showCellData">
-                            <el-table-column prop="number" label="序号" min-width="10%" />
-                            <el-table-column prop="name" label="监测点名称" min-width="25%" />
-                            <el-table-column prop="address" label="地理位置" min-width="25%" />
-                            <el-table-column prop="grade" label="预警等级" min-width="15%" />
-                            <el-table-column prop="time" label="预警发布时间" min-width="15%" />
+                            <el-table-column prop="number" label="序号" min-width="10%" show-overflow-tooltip/>
+                            <el-table-column prop="name" label="监测点名称" min-width="25%" show-overflow-tooltip/>
+                            <el-table-column prop="address" label="地理位置" min-width="25%" show-overflow-tooltip/>
+                            <el-table-column prop="grade" label="预警等级" min-width="15%" show-overflow-tooltip/>
+                            <el-table-column prop="time" label="预警发布时间" min-width="15%" show-overflow-tooltip/>
                             <el-table-column prop="cz" label="操作" min-width="15%">
                                 <template #default="scope">
                                     <el-button link type="primary" size="small" @click="handleClick">编辑</el-button>

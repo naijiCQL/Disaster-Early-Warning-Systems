@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-19 15:00:48
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-22 15:35:30
+ * @LastEditTime: 2023-12-25 09:56:41
  * @FilePath: \DW-Systems\src\components\common\dialog\JcdglView.vue
  * @Description: 监测点信息列表页面
 -->
@@ -401,16 +401,16 @@ function handleClose() {
                 <el-tree-select v-model="xzqhValue" :data="data" :render-after-expand="false" placeholder="请选择行政区划"
                     class="treeSelect-style" />
                 <span>监测点名称：</span>
-                <el-input v-model="jcdmcInput" placeholder="请输入监测点" clearable style="width: 10%" />
+                <el-input v-model="jcdmcInput" placeholder="请输入监测点" clearable style="width: 11%" />
                 <span>监测点编号：</span>
-                <el-input v-model="jcdbhInput" placeholder="请输入监测点" clearable style="width: 10%" />
+                <el-input v-model="jcdbhInput" placeholder="请输入监测点" clearable style="width: 11%" />
                 <span>灾害类型：</span>
                 <el-select v-model="zhlxValue" class="select1-style" placeholder="请选择灾害类型" :popper-append-to-body="false"
                     @change="chooseZhlx" clearable>
                     <el-option v-for="item in zhlxOptions" :key="item.value" :label="item.label" :value="item.value" />
                 </el-select>
                 <span>关键字：</span>
-                <el-input v-model="gjcInput" placeholder="请输入关键字" clearable style="width: 9%" />
+                <el-input v-model="gjcInput" placeholder="请输入关键字" clearable style="width: 10%" />
                 <span>检测单位：</span>
                 <el-select v-model="jcdwValue" placeholder="请输入检测单位" :popper-append-to-body="false" @change="chooseJcdw"
                     clearable>
@@ -453,11 +453,11 @@ function handleClose() {
                     <el-config-provider :locale="locale">
                         <el-table v-loading="loading" :data="tableData" style="width: 100%" :row-style="{ height: '20px' }"
                             stripe :cell-style="cellStyle" @cell-click="showCellData">
-                            <el-table-column prop="number" label="序号" min-width="10%" />
-                            <el-table-column prop="jcdbh" label="监测点编号" min-width="20%" />
-                            <el-table-column prop="jcdmc" label="监测点名称" min-width="30%" />
-                            <el-table-column prop="position" label="地理位置" min-width="35%" />
-                            <el-table-column prop="zhlx" label="灾害类型" min-width="10%" />
+                            <el-table-column prop="number" label="序号" min-width="10%" show-overflow-tooltip/>
+                            <el-table-column prop="jcdbh" label="监测点编号" min-width="20%" show-overflow-tooltip/>
+                            <el-table-column prop="jcdmc" label="监测点名称" min-width="30%" show-overflow-tooltip/>
+                            <el-table-column prop="position" label="地理位置" min-width="35%" show-overflow-tooltip/>
+                            <el-table-column prop="zhlx" label="灾害类型" min-width="10%" show-overflow-tooltip/>
                             <el-table-column prop="jcdw" label="监测单位" min-width="10%" show-overflow-tooltip />
                             <el-table-column prop="cz" label="操作" min-width="15%">
                                 <template #default="scope">
@@ -497,7 +497,7 @@ function handleClose() {
 
         span {
             font-size: 12px;
-            width: 8.5%;
+            width: 7%;
             text-align: right;
             margin: 12px 0px;
         }
@@ -597,15 +597,15 @@ function handleClose() {
 }
 
 .treeSelect-style {
+    width: 15.5%;
     ::v-deep .el-input__inner {
-        width: 130px;
         font-size: 12px;
     }
 }
 
 .select1-style {
+    width: 12%;
     ::v-deep .el-input__inner {
-        width: 100px;
         font-size: 12px;
     }
 }

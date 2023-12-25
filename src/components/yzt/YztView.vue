@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-11-26 19:36:15
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-22 15:35:49
+ * @LastEditTime: 2023-12-25 09:16:50
  * @FilePath: \DW-Systems\src\components\yzt\YztView.vue
  * @Description: 一张图页面
 -->
@@ -13,13 +13,13 @@ import RightView from './RightView.vue';
 import MapView from '@/components/common/MapView.vue';
 import JcdglView from '@/components/common/dialog/JcdglView.vue';
 import YjxxglView from '@/components/common/dialog/YjxxglView.vue';
+import SbxxView from '@/components/common/dialog/SbxxView.vue';
 
 const syOlMap = ref('')
 
 onMounted(() => {
       syOlMap.value.getLayerData()
 })
-
 </script>
 
 <template>
@@ -37,6 +37,8 @@ onMounted(() => {
                   <JcdglView></JcdglView>
                   <!-- 预警信息列表 -->
                   <YjxxglView></YjxxglView>
+                  <!-- 设备名称页面 -->
+                  <SbxxView></SbxxView>
             </div>
 
 
