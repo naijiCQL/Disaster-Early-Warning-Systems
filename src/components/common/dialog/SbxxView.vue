@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-25 10:35:37
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-25 17:14:00
+ * @LastEditTime: 2023-12-25 20:13:50
  * @FilePath: \DW-Systems\src\components\common\dialog\SbxxView.vue
  * @Description: 设备信息列表页面
 -->
@@ -82,7 +82,7 @@ const sbxxParams = {
     "pageSize": 8,
     "monitorPointProgress": null,
     "projectId": null,
-    "lx": "0"
+    "lx": "0",
 }
 
 onMounted(() => {
@@ -222,7 +222,10 @@ const tableData = ref([]);//初始化表格数据
 const totalNumber = ref(0)//初始化表格中数据总量
 //选择设备类型
 function selectSblxValue() {
-    console.log(sblxValue.value)
+    let sblx = sblxValue.value.toString()
+    console.log(sblx)
+    sbxxParams.lx = sblx
+    getSbxxData(sbxxParams)
 }
 //按照设备状态修改其标签颜色
 function getSpanStyle(zt) {
@@ -241,6 +244,8 @@ function handleClose() {
     sbxxParams.sbzt = ''
     sbxxParams.pageNum = '1'
     sbztValue.value = ''
+    sbxxParams.lx = '0'
+    sblxValue.value = ["0"]
     dialogVisible.value = false
 }
 </script>
