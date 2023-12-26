@@ -2,23 +2,27 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-25 10:35:37
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-25 20:13:50
+ * @LastEditTime: 2023-12-26 17:41:11
  * @FilePath: \DW-Systems\src\components\common\dialog\SbxxView.vue
  * @Description: 设备信息列表页面
 -->
 <script setup>
 import bus from 'vue3-eventbus'
+import { ElMessage } from 'element-plus'
 import { useStore } from "@/store/mystore.js";
 import { ref, onMounted, computed } from 'vue';
 import en from 'element-plus/dist/locale/en.mjs'
+import { exportFile } from "@/utils/exportFile.js";
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
-import { listCsmc, listJcdw, listByDicCode, querySblbByParams } from '@/api/sbyx/sbck'
+import { listCsmc, listJcdw, listByDicCode, querySblbByParams, exportMultiSbxx, exportSbxx, downloadCodeZip } from '@/api/sbyx/sbck'
+import Treeselect from "vue3-treeselect"
+import 'vue3-treeselect/dist/vue3-treeselect.css'
 
 const language = ref('zh-cn')
 const locale = computed(() => (language.value === 'zh-cn' ? zhCn : en))
 
 let dialogVisible = ref(false)//初始化窗口不进行显示
-const xzqhValue = ref('')//初始化行政区划选择框
+const xzqhValue = ref('1')//初始化行政区划选择框
 const csmcValue = ref('')//初始化灾害类型选择框
 const jclxValue = ref('')//初始化监测类型选择框
 const sbbhInput = ref('')//初始化设备编号输入框
@@ -29,22 +33,27 @@ const sbztValue = ref('')//初始化检测单位选择框
 const jcdwValue = ref('')//初始化项目名称选择框
 
 //定义行政区划数据
-const data = [
+const treeData = [
     {
-        value: '1',
+        id: '1',
         label: '宜昌市',
-        children: [
-            {
-                value: '1-1',
-                label: 'Level two 1-1',
-                children: [
-                    {
-                        value: '1-1-1',
-                        label: 'Level three 1-1-1',
-                    },
-                ],
-            },
-        ],
+        children: [{
+            id: 'a',
+            label: 'a',
+            children: [{
+                id: 'aa',
+                label: 'aa',
+            }, {
+                id: 'ab',
+                label: 'ab',
+            }],
+        }, {
+            id: 'b',
+            label: 'b',
+        }, {
+            id: 'c',
+            label: 'c',
+        }],
     },
 ]
 const csmcOptions = ref([])//初始化厂商名称选择框内的值
@@ -115,11 +124,15 @@ function getCsData() {
             res.result.forEach((item) => {
                 csmcOptions.value.push({
                     label: item.csmc,
-                    value: item.csid
+                    value: item.csmc
                 })
             })
         }
     })
+}
+//
+function handleTreeSelect() {
+    console.log(xzqhValue)
 }
 //得到监测类型数据
 function getJclxData(param) {
@@ -176,15 +189,19 @@ function getSbxxData(param) {
             totalNumber.value = res.result.total
             tableData.value = []
             res.result.list.forEach((item) => {
-                let szzt = item.zt === '1' ? '在线' : '离线'
                 tableData.value.push({
-                    zt: szzt,
-                    sbbh: item.sbbb,
+                    zt: item.zt,
+                    sbbb: item.sbbb,
                     sbmc: item.sbmc,
                     jcdmc: item.jcdmc,
                     csmc: item.csmc,
                     dlwz: item.dlwz,
-                    jclx: item.jclx
+                    jclx: item.jclx,
+                    jd: item.jd,
+                    wd: item.wd,
+                    zhlx: item.zhlx,
+                    guid: item.guid,
+                    jcdwid: item.jcdwid,
                 })
             })
         }
@@ -220,24 +237,73 @@ function handleClick() {
 const loading = ref(true)//初始化加载状态
 const tableData = ref([]);//初始化表格数据
 const totalNumber = ref(0)//初始化表格中数据总量
+//选择厂商名称
+function selectCsmcValue() {
+    sbxxParams.csmc = csmcValue.value
+    getSbxxData(sbxxParams)
+}
+//选择检测类型
+function selectjclxValue() {
+    sbxxParams.jclx = jclxValue.value
+    getSbxxData(sbxxParams)
+}
 //选择设备类型
 function selectSblxValue() {
     let sblx = sblxValue.value.toString()
-    console.log(sblx)
     sbxxParams.lx = sblx
     getSbxxData(sbxxParams)
 }
 //按照设备状态修改其标签颜色
 function getSpanStyle(zt) {
-    if (zt === '离线') {
+    if (zt === '0') {
         return { backgroundColor: 'red' };
     }
 }
 //选择设备状态
 function selectSbztValue() {
-    console.log(sbztValue.value)
     sbxxParams.sbzt = sbztValue.value
     getSbxxData(sbxxParams)
+}
+//选择检测单位
+function selectjcdwValue() {
+    sbxxParams.jcdw = jcdwValue.value
+    getSbxxData(sbxxParams)
+}
+let selectData = [] //保存所选择每一行的值
+let selectGuidData = []//保存所选择设备的guid
+//显示所选择表格中的数据并且进行保存
+function handleSelectionChange(val) {
+    selectGuidData = []
+    selectData = val
+    val.forEach((item) => {
+        selectGuidData.push(item.guid)
+    })
+}
+//将所多选的表格数据导出excel
+function exportData() {
+    if (selectData[0]) {
+        exportMultiSbxx(selectData).then((res) => {
+            exportFile(res, '设备查看.xls')
+        })
+    } else {
+        ElMessage.error('请勾选要导出项！')
+    }
+}
+//将所筛选表格中的数据全部导出
+function exportAllData() {
+    exportSbxx(sbxxParams).then((res) => {
+        exportFile(res, '设备查看.xls')
+    })
+}
+//下载设备二维码
+function download2DCode() {
+    if (selectGuidData[0]) {
+        downloadCodeZip(selectGuidData).then((res) => {
+            exportFile(res, '二维码下载.zip')
+        })
+    } else {
+        ElMessage.error('请勾选要下载二维码的设备！')
+    }
 }
 //dialog窗口组件销毁前，将所有状态进行初始化
 function handleClose() {
@@ -246,8 +312,12 @@ function handleClose() {
     sbztValue.value = ''
     sbxxParams.lx = '0'
     sblxValue.value = ["0"]
+    sbxxParams.csmc = ''
+    sbxxParams.jclx = ''
+    sbxxParams.jcdw = null
     dialogVisible.value = false
 }
+
 </script>
 <template>
     <div class="main-page">
@@ -255,16 +325,17 @@ function handleClose() {
             :before-close="handleClose" :destroy-on-close='true'>
             <div class="container-top">
                 <span>行政区划：</span>
-                <el-tree-select v-model="xzqhValue" :data="data" :render-after-expand="false" placeholder="请选择行政区划"
-                    class="treeSelect-style" />
+                <treeselect class="treeSelect" v-model="xzqhValue" :options="treeData" no-options-text="暂无数据"
+                    placeholder="请选择行政区划" @select="handleTreeSelect">
+                </treeselect>
                 <span>厂商名称：</span>
                 <el-select v-model="csmcValue" class="select1-style" placeholder="请选择" :popper-append-to-body="false"
-                    clearable>
+                    clearable @change="selectCsmcValue">
                     <el-option v-for="item in csmcOptions" :key="item.value" :label="item.label" :value="item.value" />
                 </el-select>
                 <span>监测类型：</span>
                 <el-select v-model="jclxValue" class="select1-style" placeholder="请选择监测类型" :popper-append-to-body="false"
-                    clearable>
+                    clearable @change="selectjclxValue">
                     <el-option v-for="item in jclxOptions" :key="item.value" :label="item.label" :value="item.value" />
                 </el-select>
                 <span>设备编号：</span>
@@ -284,19 +355,20 @@ function handleClose() {
                     <el-option v-for="item in sbztOptions" :key="item.value" :label="item.label" :value="item.value" />
                 </el-select>
                 <span>监测单位：</span>
-                <el-select v-model="jcdwValue" placeholder="请选择" :popper-append-to-body="false" clearable>
+                <el-select v-model="jcdwValue" placeholder="请选择" :popper-append-to-body="false" clearable
+                    @change="selectjcdwValue">
                     <el-option v-for="item in jcdwOptions" :key="item.value" :label="item.label" :value="item.value" />
                 </el-select>
             </div>
             <div class="container-middle">
                 <div>
-                    <el-button type="primary"> <el-icon>
+                    <el-button type="primary" @click="exportData"> <el-icon>
                             <Bottom />
                         </el-icon>导出</el-button>
-                    <el-button type="primary"> <el-icon>
+                    <el-button type="primary" @click="exportAllData"> <el-icon>
                             <Bottom />
                         </el-icon>全部导出</el-button>
-                    <el-button type="primary"> <el-icon>
+                    <el-button type="primary" @click="download2DCode"> <el-icon>
                             <Bottom />
                         </el-icon>下载设备二维码</el-button>
                 </div>
@@ -309,15 +381,15 @@ function handleClose() {
                 <div class="zhData">
                     <el-config-provider :locale="locale">
                         <el-table v-loading="loading" :data="tableData" style="width: 100%" :row-style="{ height: '20px' }"
-                            stripe>
+                            stripe @selection-change="handleSelectionChange">
                             <el-table-column type="selection" prop="number" min-width="5%" />
                             <el-table-column prop="zt" label="状态" min-width="10%">
                                 <template #default="scope">
                                     <span class="zt" :style="getSpanStyle(scope.row.zt)"></span>
-                                    <span>{{ scope.row.zt }}</span>
+                                    <span>{{ scope.row.zt === '1' ? '在线' : '离线' }}</span>
                                 </template>
                             </el-table-column>
-                            <el-table-column prop="sbbh" label="设备编号" min-width="15%" show-overflow-tooltip />
+                            <el-table-column prop="sbbb" label="设备编号" min-width="15%" show-overflow-tooltip />
                             <el-table-column prop="sbmc" label="设备名称" min-width="15%" show-overflow-tooltip />
                             <el-table-column prop="jcdmc" label="监测点名称" min-width="15%" show-overflow-tooltip />
                             <el-table-column prop="csmc" label="厂商名称" min-width="10%" show-overflow-tooltip />
@@ -357,6 +429,19 @@ function handleClose() {
         display: flex;
         align-items: center;
         flex-wrap: wrap;
+
+        .treeSelect {
+            width: 15%;
+
+            ::v-deep .vue-treeselect__placeholder,
+            ::v-deep .vue-treeselect__single-value {
+                line-height: 30px;
+            }
+
+            ::v-deep .vue-treeselect__control {
+                height: 30px;
+            }
+        }
 
         span {
             font-size: 12px;
@@ -443,14 +528,6 @@ function handleClose() {
                 font-weight: 700;
             }
         }
-    }
-}
-
-.treeSelect-style {
-    width: 15%;
-
-    ::v-deep .el-input__inner {
-        font-size: 12px;
     }
 }
 
