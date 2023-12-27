@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-13 13:57:57
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-27 14:14:18
+ * @LastEditTime: 2023-12-27 16:05:55
  * @FilePath: \DW-Systems\src\components\common\date\getTime.js
  * @Description: 获得当前时间以及当前时间中小时的前整数倍时间
  */
@@ -23,7 +23,8 @@ export function getPreviousHourTime(hours) {
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const seconds = String(now.getSeconds()).padStart(2, '0');
 
-    const formattedTime = `${year}-${month}-${day} ${hour}:${minutes}:${seconds}`;
+    let formattedTime = `${year}-${month}-${day} ${hour}:${minutes}:${seconds}`;
+
     return formattedTime;
 }
 
@@ -33,7 +34,7 @@ export function getPreviousHourTime(hours) {
  */
 export function getCurrentDate(date) {
     let now = new Date();
-    if(date)(
+    if (date) (
         now = new Date(date)
     )
     const year = now.getFullYear();

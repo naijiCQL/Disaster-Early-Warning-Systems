@@ -2,89 +2,22 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-19 15:00:48
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-25 10:38:29
+ * @LastEditTime: 2023-12-27 17:55:04
  * @FilePath: \DW-Systems\src\components\dcpj\DcpjView.vue
  * @Description: 监测点信息列表页面
 -->
 <script setup>
-import bus from 'vue3-eventbus'
+import { ref, onMounted } from 'vue';
+import MapTool from '@/components/common/tools/MapTool.vue';
+import Treeselect from "vue3-treeselect"
+import 'vue3-treeselect/dist/vue3-treeselect.css'
 import { useStore } from "@/store/mystore.js";
-import { ref, onMounted, computed } from 'vue';
-import en from 'element-plus/dist/locale/en.mjs'
-import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
-
-
-const language = ref('zh-cn')
-const locale = computed(() => (language.value === 'zh-cn' ? zhCn : en))
 
 let dialogVisible = ref(false)//初始化窗口不进行显示
-const xzqhValue = ref('')//初始化行政区划选择框
-const csmcValue = ref('')//初始化灾害类型选择框
-const jclxValue = ref('')//初始化监测类型选择框
-const sbbhInput = ref('')//初始化设备编号输入框
-const sblxValue = ref('')//初始化设备类型选择框
-const sbmcInput = ref('')//初始化设备名称输入框
-const jcdmcInput = ref('')//初始化监测点名称输入框
-const sbztValue = ref('')//初始化检测单位选择框
-const jcdwValue = ref('')//初始化项目名称选择框
-
-//定义行政区划数据
-const data = [
-    {
-        value: '1',
-        label: '宜昌市',
-        children: [
-            {
-                value: '1-1',
-                label: 'Level two 1-1',
-                children: [
-                    {
-                        value: '1-1-1',
-                        label: 'Level three 1-1-1',
-                    },
-                ],
-            },
-        ],
-    },
-]
-const csmcOptions = ref([])//初始化厂商名称选择框内的值
-const jclxOptions = ref([])//初始化检测类型选择框内的值
-const sblxOptions = ref([])//初始化设备类型选择框内的值
-const sbztOptions = ref([])//初始化检设备名称中选择框内的值
-const jcdwOptions = ref([])//初始化监测单位中选择框内的值
 
 onMounted(() => {
 
 })
-// 计算页面大小函数
-function calculatePageSize() {
-    const screenHeight = (window.innerHeight * 0.85 - 40) / 60;
-    return Math.max(1, screenHeight.toFixed(0)); // 至少为1条数据
-}
-// 在窗口大小改变时重新计算 pageSize
-window.addEventListener('resize', () => {
-    pageSize.value = calculatePageSize();
-});
-
-const currentPage = ref(1)//初始化当前页
-const pageSize = ref(calculatePageSize());//根据页面大小计算每个表格所容纳的个数
-//每页条数改变时触发 选择一页显示多少行
-function handleSizeChange(val) {
-    pageSize.value = val;
-}
-//当前页改变时触发 跳转其他页
-function currentChange(val) {
-    currentPage.value = val;
-}
-//编辑每一行表格数据
-function handleClick() {
-    console.log('编辑表格')
-}
-//初始化加载状态
-const loading = ref(false)
-//初始化表格数据
-const tableData = ref([]);
-const totalNumber = ref(0)
 
 function handleClose() {
     console.log('窗口关闭')
@@ -94,85 +27,39 @@ function handleClose() {
 <template>
     <div class="main-page">
         <el-button type="primary" @click="dialogVisible = true">点击按钮</el-button>
-        <el-dialog v-model="dialogVisible" title="设备信息列表" width="86%" top="4%" :close-on-click-modal='false'
+        <el-dialog v-model="dialogVisible" title="预警分析" width="83%" top="4%" :close-on-click-modal='false'
             :before-close="handleClose" :destroy-on-close='true'>
-            <div class="container-top">
-                <span>行政区划：</span>
-                <el-tree-select v-model="xzqhValue" :data="data" :render-after-expand="false" placeholder="请选择行政区划"
-                    class="treeSelect-style" />
-                <span>厂商名称：</span>
-                <el-select v-model="csmcValue" class="select1-style" placeholder="请选择" :popper-append-to-body="false"
-                    clearable>
-                    <el-option v-for="item in csmcOptions" :key="item.value" :label="item.label" :value="item.value" />
-                </el-select>
-                <span>监测类型：</span>
-                <el-select v-model="jclxValue" class="select1-style" placeholder="请选择监测类型" :popper-append-to-body="false"
-                    clearable>
-                    <el-option v-for="item in jclxOptions" :key="item.value" :label="item.label" :value="item.value" />
-                </el-select>
-                <span>设备编号：</span>
-                <el-input v-model="sbbhInput" placeholder="请输入设备编号" clearable style="width: 12%" />
-                <span>设备类型：</span>
-                <el-select v-model="sblxValue" class="select1-style" placeholder="请选择设备类型" :popper-append-to-body="false"
-                    clearable>
-                    <el-option v-for="item in sblxOptions" :key="item.value" :label="item.label" :value="item.value" />
-                </el-select>
-                <span>设备名称：</span>
-                <el-input v-model="sbmcInput" placeholder="请输入设备名称" clearable style="width: 15%" />
-                <span>监测点名称：</span>
-                <el-input v-model="jcdmcInput" placeholder="请输入监测点名称" clearable style="width: 15%" />
-                <span>设备状态：</span>
-                <el-select v-model="sbztValue" placeholder="请输入设备状态" :popper-append-to-body="false" clearable>
-                    <el-option v-for="item in sbztOptions" :key="item.value" :label="item.label" :value="item.value" />
-                </el-select>
-                <span>监测单位：</span>
-                <el-select v-model="jcdwValue" placeholder="请选择" :popper-append-to-body="false" clearable>
-                    <el-option v-for="item in jcdwOptions" :key="item.value" :label="item.label" :value="item.value" />
-                </el-select>
-            </div>
-            <div class="container-middle">
-                <div>
-                    <el-button type="primary"> <el-icon>
-                            <Bottom />
-                        </el-icon>导出</el-button>
-                    <el-button type="primary"> <el-icon>
-                            <Bottom />
-                        </el-icon>全部导出</el-button>
-                    <el-button type="primary"> <el-icon>
-                            <Bottom />
-                        </el-icon>下载设备二维码</el-button>
+            <div class="container">
+                <div class="left-page">
+                    <MapTool></MapTool>
                 </div>
-                <div class="choose-content">
-                    <el-button type="primary">查询</el-button>
-                    <el-button>重置</el-button>
-                </div>
-            </div>
-            <div class="container-down">
-                <div class="zhData">
-                    <el-config-provider :locale="locale">
-                        <el-table v-loading="loading" :data="tableData" style="width: 100%" :row-style="{ height: '20px' }"
-                            stripe>
-                            <el-table-column type="selection" prop="number" min-width="10%" />
-                            <el-table-column prop="zt" label="状态" min-width="10%" />
-                            <el-table-column prop="sbbh" label="设备编号" min-width="10%" />
-                            <el-table-column prop="sbmc" label="设备名称" min-width="15%" show-overflow-tooltip />
-                            <el-table-column prop="jcdmc" label="监测点名称" min-width="10%" />
-                            <el-table-column prop="csmc" label="厂商名称" min-width="10%" />
-                            <el-table-column prop="dlwz" label="地理位置" min-width="10%" />
-                            <el-table-column prop="jclx" label="检测类型" min-width="10%" />
-                            <el-table-column prop="cz" label="操作" min-width="15%">
-                                <template #default="scope">
-                                    <el-button link type="primary" size="small" @click="handleClick">设备详情</el-button>
-                                    <el-button link type="primary" size="small">数据查看</el-button>
-                                </template>
-                            </el-table-column>
-                        </el-table>
-                        <div class="block">
-                            <el-pagination layout="->, total, prev, pager, next, jumper" :total="totalNumber"
-                                :page-size="pageSize" @current-change="currentChange" @size-change="handleSizeChange"
-                                :page-sizes="[1, 3, 6, 10]" :current-page="currentPage" background small></el-pagination>
+                <div class="right-page">
+                    <div class="right-header">
+                        <span>预警信息列表 (1)</span>
+                    </div>
+                    <div class="right-container">
+                        <div class="date-picker">
+                            <el-date-picker v-model="timeValue1" type="date" placeholder="开始时间"
+                                @change="selectTimeValue1" />
                         </div>
-                    </el-config-provider>
+                        <span>-</span>
+                        <div class="date-picker">
+                            <el-date-picker v-model="timeValue2" type="date" placeholder="结束时间"
+                                @change="selectTimeValue2" />
+                        </div>
+                        <treeselect class="treeSelect" no-options-text="暂无数据" placeholder="请选择行政区划">
+                        </treeselect>
+                        <el-select class="select-style" v-model="yjdjValue" placeholder="预警等级"
+                            :popper-append-to-body="false" @change="selectYjdjValue" clearable>
+                            <el-option v-for="item in useStore().gradeColor" :key="item.code" :label="item.value"
+                                :value="item.code" />
+                        </el-select>
+                        <el-select class="select-style" v-model="jcdwValue" placeholder="请输入检测单位"
+                            :popper-append-to-body="false" @change="chooseJcdw" clearable>
+                            <el-option v-for="item in jcdwOptions" :key="item.value" :label="item.label"
+                                :value="item.value" />
+                        </el-select>
+                    </div>
                 </div>
             </div>
         </el-dialog>
@@ -188,121 +75,85 @@ function handleClose() {
     justify-content: center;
     align-items: center;
 
-    .container-top {
-        background-color: rgb(245, 247, 250);
-        border-bottom: 1px solid #e3e3e3;
-        border-top: 1px solid #e3e3e3;
-        background: #f5f7fa;
-        padding: 10px 0px;
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-
-        span {
-            font-size: 12px;
-            width: 7%;
-            text-align: right;
-            margin: 12px 0px;
-        }
-    }
-
-    .container-middle {
+    .container {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        padding: 0.9rem 0.625rem;
 
-        .choose-content {
-            display: flex;
-            cursor: pointer;
-            width: 7%;
-
-
-            ::v-deep .el-button {
-                margin-left: 5px;
-                height: 28px;
-                width: 45%;
-                font-size: 12px;
-            }
+        .left-page {
+            width: 10%;
         }
 
-        ::v-deep .el-button {
-            height: 28px;
-            font-size: 12px;
-            padding: 10px;
-        }
+        .right-page {
+            position: relative;
+            width: 31%;
+            margin-top: 5%;
 
-        ::v-deep .el-icon {
-            margin-right: 5px;
-        }
-    }
-
-    .container-down {
-        width: 100%;
-        height: 56vh;
-        box-sizing: border-box;
-        z-index: 0;
-
-        .map-tool {
-            position: absolute;
-            top: calc(100% - 215px);
-            right: 1%;
-            width: 32%;
-        }
-
-        .zhData {
-            .block {
-                position: absolute;
-                bottom: 1%;
-                right: 1%;
+            .right-header {
+                background-color: #164676;
+                line-height: 32px;
+                padding-left: 10px;
+                color: white;
+                font-size: 13px;
+                display: flex;
             }
 
-            ::v-deep .el-table .el-table__cell {
-                text-align: center;
-                padding: 6px 0;
-                line-height: 22px;
-                font-size: 12px;
-            }
+            .right-container {
+                background-color: aqua;
+                display: flex;
+                align-items: center;
+                flex-wrap: wrap;
+                padding: 5px;
+                justify-content: space-between;
 
-            ::v-deep .el-table td.el-table__cell,
-            .el-table th.el-table__cell.is-leaf {
-                border-bottom: 1px solid #EBEEF5;
-            }
+                .date-picker {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 49%;
 
-            ::v-deep .el-table th,
-            ::v-deep .el-table .is-group th {
-                text-align: center;
-                background-color: #ebf1fd !important;
-                color: #00264b;
-            }
+                    ::v-deep .el-input__wrapper {
+                        height: 25px;
+                        font-size: 12px;
+                    }
 
-            ::v-deep .el-pagination {
-                color: #303133;
-                font-weight: 700;
+                    ::v-deep .el-date-editor.el-input,
+                    .el-date-editor.el-input__wrapper {
+                        align-items: center;
+                    }
+                }
+
+                .treeSelect {
+                    width: 49%;
+
+                    ::v-deep .vue-treeselect__placeholder,
+                    ::v-deep .vue-treeselect__single-value {
+                        line-height: 30px;
+                        font-size: 12px;
+                    }
+
+                    ::v-deep .vue-treeselect__control {
+                        height: 30px;
+                    }
+                }
+
+
+                .select-style {
+                    width: 49%;
+
+                    ::v-deep .el-input__inner {
+                        font-size: 12px;
+                    }
+                }
+
             }
         }
     }
-}
 
-.treeSelect-style {
 
-    width: 15%;
-
-    ::v-deep .el-input__inner {
-        font-size: 12px;
-    }
-}
-
-.select1-style {
-    width: 12%;
-
-    ::v-deep .el-input__inner {
-        font-size: 12px;
-    }
 }
 
 ::v-deep .el-input__inner {
-    height: 28px;
+    height: 25px;
     line-height: 28px;
     font-size: 12px;
 }

@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-19 15:00:48
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-25 09:56:41
+ * @LastEditTime: 2023-12-27 15:38:14
  * @FilePath: \DW-Systems\src\components\common\dialog\JcdglView.vue
  * @Description: 监测点信息列表页面
 -->
@@ -16,12 +16,15 @@ import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import MapTool from '@/components/common/tools/MapTool.vue';
 import { queryJcdlbByParams, listJcdw, listJcxm } from '@/api/jcsj/jcdgl'
+import Treeselect from "vue3-treeselect"
+import 'vue3-treeselect/dist/vue3-treeselect.css'
+import { getXzqhData } from '@/components/common/xzqhData.js'
 
 const language = ref('zh-cn')
 const locale = computed(() => (language.value === 'zh-cn' ? zhCn : en))
 
 let dialogVisible = ref(false)//初始化窗口不进行显示
-const xzqhValue = ref('')//初始化行政区划选择框
+const xzqhValue = ref('4205')//初始化行政区划选择框
 const jcdmcInput = ref('')//初始化监测点名称输入框
 const zhlxValue = ref('')//初始化灾害类型选择框
 const jcdbhInput = ref('')//初始化监测点编号输入框
@@ -29,25 +32,7 @@ const gjcInput = ref('')//初始化关键字输入框
 const jcdwValue = ref('')//初始化检测单位选择框
 const xmmcValue = ref('')//初始化项目名称选择框
 const olMap = ref('')//初始化olMap
-//定义行政区划数据
-const data = [
-    {
-        value: '1',
-        label: '宜昌市',
-        children: [
-            {
-                value: '1-1',
-                label: 'Level two 1-1',
-                children: [
-                    {
-                        value: '1-1-1',
-                        label: 'Level three 1-1-1',
-                    },
-                ],
-            },
-        ],
-    },
-]
+const treeData = getXzqhData()//定义行政区划数据
 //定义灾害类型数据
 const zhlxOptions = [
     {
@@ -138,6 +123,18 @@ bus.on('clickPieChart', (res) => {
     //将灾害类型数据全部进行获取
     getAllJcdxxData(zhlxParams)
 })
+//自定义键名
+function normalizer(node) {
+    return {
+        id: node.xzqhdm,
+        label: node.xzqhmc,
+        children: node.children,
+    }
+}
+//选择行政地区
+function handleTreeSelect(node) {
+    console.log(node.xzqhdm)
+}
 //初始化图层开始显示的要素
 let active = ref(true)
 //根据不同的图层进行切换样式
@@ -398,8 +395,9 @@ function handleClose() {
             :before-close="handleClose" :destroy-on-close='true'>
             <div class="container-top">
                 <span>行政区划：</span>
-                <el-tree-select v-model="xzqhValue" :data="data" :render-after-expand="false" placeholder="请选择行政区划"
-                    class="treeSelect-style" />
+                <treeselect class="treeSelect" v-model="xzqhValue" :options="treeData" no-options-text="暂无数据"
+                    placeholder="请选择行政区划" @select="handleTreeSelect" :normalizer="normalizer">
+                </treeselect>
                 <span>监测点名称：</span>
                 <el-input v-model="jcdmcInput" placeholder="请输入监测点" clearable style="width: 11%" />
                 <span>监测点编号：</span>
@@ -453,11 +451,11 @@ function handleClose() {
                     <el-config-provider :locale="locale">
                         <el-table v-loading="loading" :data="tableData" style="width: 100%" :row-style="{ height: '20px' }"
                             stripe :cell-style="cellStyle" @cell-click="showCellData">
-                            <el-table-column prop="number" label="序号" min-width="10%" show-overflow-tooltip/>
-                            <el-table-column prop="jcdbh" label="监测点编号" min-width="20%" show-overflow-tooltip/>
-                            <el-table-column prop="jcdmc" label="监测点名称" min-width="30%" show-overflow-tooltip/>
-                            <el-table-column prop="position" label="地理位置" min-width="35%" show-overflow-tooltip/>
-                            <el-table-column prop="zhlx" label="灾害类型" min-width="10%" show-overflow-tooltip/>
+                            <el-table-column prop="number" label="序号" min-width="10%" show-overflow-tooltip />
+                            <el-table-column prop="jcdbh" label="监测点编号" min-width="20%" show-overflow-tooltip />
+                            <el-table-column prop="jcdmc" label="监测点名称" min-width="30%" show-overflow-tooltip />
+                            <el-table-column prop="position" label="地理位置" min-width="35%" show-overflow-tooltip />
+                            <el-table-column prop="zhlx" label="灾害类型" min-width="10%" show-overflow-tooltip />
                             <el-table-column prop="jcdw" label="监测单位" min-width="10%" show-overflow-tooltip />
                             <el-table-column prop="cz" label="操作" min-width="15%">
                                 <template #default="scope">
@@ -494,6 +492,19 @@ function handleClose() {
         display: flex;
         align-items: center;
         flex-wrap: wrap;
+
+        .treeSelect {
+            width: 15%;
+
+            ::v-deep .vue-treeselect__placeholder,
+            ::v-deep .vue-treeselect__single-value {
+                line-height: 30px;
+            }
+
+            ::v-deep .vue-treeselect__control {
+                height: 30px;
+            }
+        }
 
         span {
             font-size: 12px;
@@ -598,6 +609,7 @@ function handleClose() {
 
 .treeSelect-style {
     width: 15.5%;
+
     ::v-deep .el-input__inner {
         font-size: 12px;
     }
@@ -605,6 +617,7 @@ function handleClose() {
 
 .select1-style {
     width: 12%;
+
     ::v-deep .el-input__inner {
         font-size: 12px;
     }

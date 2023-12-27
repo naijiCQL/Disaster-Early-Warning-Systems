@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-25 10:35:37
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-26 17:41:11
+ * @LastEditTime: 2023-12-27 15:42:37
  * @FilePath: \DW-Systems\src\components\common\dialog\SbxxView.vue
  * @Description: 设备信息列表页面
 -->
@@ -17,12 +17,13 @@ import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import { listCsmc, listJcdw, listByDicCode, querySblbByParams, exportMultiSbxx, exportSbxx, downloadCodeZip } from '@/api/sbyx/sbck'
 import Treeselect from "vue3-treeselect"
 import 'vue3-treeselect/dist/vue3-treeselect.css'
+import { getXzqhData } from '@/components/common/xzqhData.js'
 
 const language = ref('zh-cn')
 const locale = computed(() => (language.value === 'zh-cn' ? zhCn : en))
 
-let dialogVisible = ref(false)//初始化窗口不进行显示
-const xzqhValue = ref('1')//初始化行政区划选择框
+const dialogVisible = ref(false)//初始化窗口不进行显示
+const xzqhValue = ref('4205')//初始化行政区划选择框
 const csmcValue = ref('')//初始化灾害类型选择框
 const jclxValue = ref('')//初始化监测类型选择框
 const sbbhInput = ref('')//初始化设备编号输入框
@@ -31,31 +32,7 @@ const sbmcInput = ref('')//初始化设备名称输入框
 const jcdmcInput = ref('')//初始化监测点名称输入框
 const sbztValue = ref('')//初始化检测单位选择框
 const jcdwValue = ref('')//初始化项目名称选择框
-
-//定义行政区划数据
-const treeData = [
-    {
-        id: '1',
-        label: '宜昌市',
-        children: [{
-            id: 'a',
-            label: 'a',
-            children: [{
-                id: 'aa',
-                label: 'aa',
-            }, {
-                id: 'ab',
-                label: 'ab',
-            }],
-        }, {
-            id: 'b',
-            label: 'b',
-        }, {
-            id: 'c',
-            label: 'c',
-        }],
-    },
-]
+const treeData = getXzqhData()//定义行政区划数据
 const csmcOptions = ref([])//初始化厂商名称选择框内的值
 const jclxOptions = ref([])//初始化检测类型选择框内的值
 //初始化设备类型选择框内的值
@@ -116,6 +93,18 @@ bus.on('clickJcsbView', (res) => {
     //分页查询设备信息数据
     getSbxxData(sbxxParams)
 })
+//自定义键名
+function normalizer(node) {
+    return {
+        id: node.xzqhdm,
+        label: node.xzqhmc,
+        children: node.children,
+    }
+}
+//选择行政地区
+function handleTreeSelect(node) {
+    console.log(node.xzqhdm)
+}
 //得到厂商数据
 function getCsData() {
     listCsmc().then((res) => {
@@ -129,10 +118,6 @@ function getCsData() {
             })
         }
     })
-}
-//
-function handleTreeSelect() {
-    console.log(xzqhValue)
 }
 //得到监测类型数据
 function getJclxData(param) {
@@ -326,7 +311,7 @@ function handleClose() {
             <div class="container-top">
                 <span>行政区划：</span>
                 <treeselect class="treeSelect" v-model="xzqhValue" :options="treeData" no-options-text="暂无数据"
-                    placeholder="请选择行政区划" @select="handleTreeSelect">
+                    placeholder="请选择行政区划" @select="handleTreeSelect" :normalizer="normalizer">
                 </treeselect>
                 <span>厂商名称：</span>
                 <el-select v-model="csmcValue" class="select1-style" placeholder="请选择" :popper-append-to-body="false"
