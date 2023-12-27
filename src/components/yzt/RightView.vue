@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-11-29 20:45:00
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-25 10:53:00
+ * @LastEditTime: 2023-12-27 13:50:36
  * @FilePath: \DW-Systems\src\components\yzt\RightView.vue
  * @Description: 一张图右侧页面
 -->
@@ -28,36 +28,13 @@ let warnInfoParams = {
     "disasterPointName": "",
     "disasterPointType": "",
     "pageNum": 1,
-    "pageSize": 6,
+    "pageSize": 10,
     "userXzqh": "",
     "startTime": "",
     "endTime": "",
     "warningLevel": "",
     "warningProcessStatus": "A"
 }
-//初始化颜色和等级对应
-let gradeColor = [
-    {
-        "code": "C4",
-        "color": "rgb(248, 68, 95)",
-        "value": "红"
-    },
-    {
-        "code": "C3",
-        "color": "rgb(251,141,51)",
-        "value": "橙"
-    },
-    {
-        "code": "C2",
-        "color": "rgb(245, 209, 69)",
-        "value": "黄"
-    },
-    {
-        "code": "C1",
-        "color": "rgb(43, 164, 232)",
-        "value": "蓝"
-    }
-]
 onMounted(() => {
     //默认窗口显示
     rightPageStyle.value.right = 0;
@@ -78,14 +55,18 @@ let yjNumber = ref({
     "blue": 0,
 })
 //初始化预警页面无信息
-let noInfo = ref(true);
+let noInfo = ref(false);
 //获取该区域在当天的各级预警数量
 function getYjNumber(params) {
     selectSbcgq(params).then((res) => {
         if (res && res.result) {
-            yjNumber.value = res.result
-            //显示预警信息
-            noInfo.value = false
+            let data = res.result
+            if (data.red === 0 && data.orange === 0 && data.yellow === 0 && data.blue === 0) {
+                //显示预警信息
+                noInfo.value = true
+            }
+            yjNumber.value = data
+
         }
     })
 }
@@ -105,7 +86,7 @@ function getWarnInfo(params) {
                 const warningTime = item.warningTime
                 const monitorPointName = item.monitorPointName
 
-                gradeColor.forEach((item) => {
+                useStore().gradeColor.forEach((item) => {
                     if (warningLevel === item.code) {
                         label.style.backgroundColor = item.color
                         span.title = `${warningTime}${monitorPointName}检测点发布${item.value}色预警`
@@ -306,8 +287,10 @@ function showJcsbView(param) {
                             <img src="@/assets/images/syView/noneWaringInfo.png" />
                             <span>暂无预警信息</span>
                         </div>
-                        <div id="yjInfo" v-else>
-                        </div>
+                        <el-scrollbar height="86%" style="margin-top: 10%;" v-else>
+                            <div id="yjInfo">
+                            </div>
+                        </el-scrollbar>
                     </div>
                 </div>
                 <div class="jcsb">
@@ -510,7 +493,6 @@ function showJcsbView(param) {
                 }
 
                 #yjInfo {
-                    padding-top: 30px;
                     display: flex;
                     flex-direction: column;
                     color: rgb(102, 102, 102);

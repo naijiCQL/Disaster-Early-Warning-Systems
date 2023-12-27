@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-11-29 20:45:00
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-25 09:28:45
+ * @LastEditTime: 2023-12-27 14:41:27
  * @FilePath: \DW-Systems\src\components\common\dialog\YjxxglView.vue
  * @Description: 预警信息列表页面
 -->
@@ -12,6 +12,8 @@ import { ref, onMounted, computed } from 'vue';
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import en from 'element-plus/dist/locale/en.mjs'
 import { queryPageWarningInfo } from "@/api/sy";
+import { useStore } from "@/store/mystore.js";
+import { getCurrentDate } from '@/components/common/date/getTime.js'
 
 
 const language = ref('zh-cn')
@@ -21,36 +23,13 @@ const dialogVisible = ref(false)//初始化窗口不进行显示
 const timeValue1 = ref('')//用于保存选择开始时间的值
 const timeValue2 = ref('')//用于保存选择结束时间的值
 const yjdjValue = ref('')//用于保存预警等级选择框所选择的值
-//初始化预警等级下拉列表数据
-const options = [
-    {
-        value: "C4",
-        color: "rgb(248, 68, 95)",
-        label: "红"
-    },
-    {
-        value: "C3",
-        color: "rgb(251,141,51)",
-        label: "橙"
-    },
-    {
-        value: "C2",
-        color: "rgb(245, 209, 69)",
-        label: "黄"
-    },
-    {
-        value: "C1",
-        color: "rgb(43, 164, 232)",
-        label: "蓝"
-    }
-]
 const tableData = ref([]);//初始化表格数据
 //定义获取当天预警信息的参数
 let warnInfoParams = {
     "disasterPointName": "",
     "disasterPointType": "",
     "pageNum": 1,
-    "pageSize": 6,
+    "pageSize": 10,
     "userXzqh": "",
     "startTime": "",
     "endTime": "",
@@ -59,19 +38,20 @@ let warnInfoParams = {
 }
 
 onMounted(() => {
-    //获取预警信息
-    getWarnInfo(warnInfoParams)
+
 })
+
 //打开预警信息列表
 bus.on('clickMoreInfo', (res) => {
     dialogVisible.value = res
+    //获取预警信息
+    getWarnInfo(warnInfoParams)
 })
 // 计算页面大小函数
 function calculatePageSize() {
     const screenHeight = (window.innerHeight * 0.85 - 40) / 60;
     return Math.max(1, screenHeight.toFixed(0)); // 至少为1条数据
 }
-
 // 在窗口大小改变时重新计算 pageSize
 window.addEventListener('resize', () => {
     pageSize.value = calculatePageSize();
@@ -94,6 +74,7 @@ const totalNumber = ref(0)
 function getWarnInfo(params) {
     loading.value = true
     queryPageWarningInfo(params).then((res) => {
+        tableData.value = []
         if (res && res.result.total) {
             totalNumber.value = res.result.total
             loading.value = false
@@ -102,7 +83,7 @@ function getWarnInfo(params) {
                     number: key + ((currentPage.value - 1) * 10 + 1),//根据当前页计算序号
                     name: item.monitorPointName,
                     address: item.adress,
-                    //grade:item.
+                    grade: item.warningLevel,
                     time: item.warningTime,
                 })
             })
@@ -130,36 +111,76 @@ function showCellData(row, column) {
         console.log(row.position)
     }
 }
+//得到相关预警颜色
+function getYjColor(scope) {
+    const yjType = useStore().gradeColor.find(item => item.code === scope);
+    return { backgroundColor: yjType.backgroundColor, color: yjType.color }
+}
+//根据预警值得到各标签值
+function getYjLabel(scope) {
+    const yjLabel = useStore().gradeColor.find(item => item.code === scope);
+    return `${yjLabel.value}色预警`
+}
+//选择第一个时间框的时间
+function selectTimeValue1() {
+    warnInfoParams.startTime = timeValue1.value === null ? '' : `${getCurrentDate(timeValue1.value)} 00:00:00`
+}
+//选择第二个时间框的时间
+function selectTimeValue2() {
+    warnInfoParams.endTime = timeValue1.value === null ? '' : `${getCurrentDate(timeValue2.value)} 23:59:59`
+}
+//选择预警等级
+function selectYjdjValue() {
+    warnInfoParams.warningLevel = yjdjValue.value
+}
+//关闭dialog窗口并且进行销毁
+function handleClose() {
+    warnInfoParams.warningLevel = ''
+    yjdjValue.value = ''
+    warnInfoParams.startTime = ''
+    warnInfoParams.endTime = ''
+    timeValue1.value = ''
+    timeValue2.value = ''
+    dialogVisible.value = false
+}
 </script>
 <template>
     <div class="main-page">
-        <el-dialog v-model="dialogVisible" title="预警信息列表" width="71%" top="5%" :close-on-click-modal='false'>
+        <el-dialog v-model="dialogVisible" title="预警信息列表" width="71%" top="5%" :close-on-click-modal='false'
+            :before-close="handleClose" :destroy-on-close='true'>
             <div class="container-top">
                 <div class="date-picker">
-                    <el-date-picker v-model="timeValue1" type="date" placeholder="开始时间" />
+                    <el-date-picker v-model="timeValue1" type="date" placeholder="开始时间" @change="selectTimeValue1" />
                 </div>
                 <span>-</span>
                 <div class="date-picker">
-                    <el-date-picker v-model="timeValue2" type="date" placeholder="结束时间" />
+                    <el-date-picker v-model="timeValue2" type="date" placeholder="结束时间" @change="selectTimeValue2" />
                 </div>
-                <el-select v-model="yjdjValue" placeholder="预警等级" :popper-append-to-body="false">
-                    <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
+                <el-select v-model="yjdjValue" placeholder="预警等级" :popper-append-to-body="false" @change="selectYjdjValue"
+                    clearable>
+                    <el-option v-for="item in useStore().gradeColor" :key="item.code" :label="item.value"
+                        :value="item.code" />
                 </el-select>
-                <el-button type="primary">查询</el-button>
+                <el-button type="primary" @click="getWarnInfo(warnInfoParams)">查询</el-button>
             </div>
             <div class="container-down">
                 <div class="zhData">
                     <el-config-provider :locale="locale">
                         <el-table :data="tableData" style="width: 100%" :row-style="{ height: '20px' }" stripe
                             :cell-style="cellStyle" @cell-click="showCellData">
-                            <el-table-column prop="number" label="序号" min-width="10%" show-overflow-tooltip/>
-                            <el-table-column prop="name" label="监测点名称" min-width="25%" show-overflow-tooltip/>
-                            <el-table-column prop="address" label="地理位置" min-width="25%" show-overflow-tooltip/>
-                            <el-table-column prop="grade" label="预警等级" min-width="15%" show-overflow-tooltip/>
-                            <el-table-column prop="time" label="预警发布时间" min-width="15%" show-overflow-tooltip/>
+                            <el-table-column prop="number" label="序号" min-width="10%" show-overflow-tooltip />
+                            <el-table-column prop="name" label="监测点名称" min-width="20%" show-overflow-tooltip />
+                            <el-table-column prop="address" label="地理位置" min-width="25%" show-overflow-tooltip />
+                            <el-table-column prop="grade" label="预警等级" min-width="15%" show-overflow-tooltip>
+                                <template #default="scope">
+                                    <span class="yjColor" :style="getYjColor(scope.row.grade)">{{
+                                        getYjLabel(scope.row.grade) }}</span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column prop="time" label="预警发布时间" min-width="25%" show-overflow-tooltip />
                             <el-table-column prop="cz" label="操作" min-width="15%">
                                 <template #default="scope">
-                                    <el-button link type="primary" size="small" @click="handleClick">编辑</el-button>
+                                    <el-button link type="primary" size="small" @click="handleClick">定位</el-button>
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -243,6 +264,12 @@ function showCellData(row, column) {
                 right: 1%;
             }
 
+            .yjColor {
+                border-radius: 3px;
+                border: 1px solid;
+                padding: 3px 15px;
+            }
+
             ::v-deep .el-table .el-table__cell {
                 text-align: center;
                 padding: 6px 0;
@@ -265,6 +292,11 @@ function showCellData(row, column) {
             ::v-deep .el-pagination {
                 color: #303133;
                 font-weight: 700;
+            }
+
+            ::v-deep .el-tag {
+                border: 1px solid;
+                border-radius: 3px;
             }
         }
     }

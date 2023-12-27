@@ -184,10 +184,10 @@ function getJcdwData() {
 function getSbxxData(param) {
     loading.value = true
     querySblbByParams(param).then((res) => {
+        tableData.value = []
         if (res && res.result) {
             loading.value = false
             totalNumber.value = res.result.total
-            tableData.value = []
             res.result.list.forEach((item) => {
                 tableData.value.push({
                     zt: item.zt,

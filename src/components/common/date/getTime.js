@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-13 13:57:57
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-15 10:34:28
+ * @LastEditTime: 2023-12-27 14:14:18
  * @FilePath: \DW-Systems\src\components\common\date\getTime.js
  * @Description: 获得当前时间以及当前时间中小时的前整数倍时间
  */
@@ -28,12 +28,14 @@ export function getPreviousHourTime(hours) {
 }
 
 /**
- * @description: 仅获取当前日期，格式为“2023-12-13”
+ * @description: 仅获取日期，格式为“2023-12-13”
  * @return {*}
  */
-export function getCurrentDate() {
-    const now = new Date();
-
+export function getCurrentDate(date) {
+    let now = new Date();
+    if(date)(
+        now = new Date(date)
+    )
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const day = String(now.getDate()).padStart(2, '0');
