@@ -1,10 +1,10 @@
 <!--
  * @Author: 陈巧龙
- * @Date: 2023-12-19 15:00:48
+ * @Date: 2024-01-05 21:08:24
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2024-01-05 20:41:30
- * @FilePath: \DW-Systems\src\components\dcpj\DcpjView.vue
- * @Description: 监测点信息列表页面
+ * @LastEditTime: 2024-01-05 21:11:39
+ * @FilePath: \DW-Systems\src\components\common\dialog\YjfxView.vue
+ * @Description: 预警分析页面
 -->
 <script setup>
 import { ref, onMounted, computed } from 'vue';
@@ -14,6 +14,7 @@ import 'vue3-treeselect/dist/vue3-treeselect.css'
 import { useStore } from "@/store/mystore.js";
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import en from 'element-plus/dist/locale/en.mjs'
+import bus from 'vue3-eventbus'
 
 const language = ref('zh-cn')
 const locale = computed(() => (language.value === 'zh-cn' ? zhCn : en))
@@ -22,6 +23,14 @@ let dialogVisible = ref(false)//初始化窗口不进行显示
 
 onMounted(() => {
 
+})
+
+let yjNumber = ref(0)
+
+bus.on('clickYjfxView', (res) => {
+    console.log(res)
+    yjNumber.value = res
+    dialogVisible.value = true
 })
 
 // 计算页面大小函数
@@ -53,7 +62,6 @@ function handleClose() {
 </script>
 <template>
     <div class="main-page">
-        <el-button type="primary" @click="dialogVisible = true">点击按钮</el-button>
         <el-dialog v-model="dialogVisible" title="预警分析" width="83%" top="4%" :close-on-click-modal='false'
             :before-close="handleClose" :destroy-on-close='true'>
             <div class="container">
@@ -62,7 +70,7 @@ function handleClose() {
                 </div>
                 <div class="right-page">
                     <div class="right-header">
-                        <span>预警信息列表 (1)</span>
+                        <span>预警信息列表 ({{ yjNumber }})</span>
                     </div>
                     <div class="right-container">
                         <div class="date-picker">
@@ -269,3 +277,4 @@ function handleClose() {
     padding: 10px 10px;
 }
 </style>
+

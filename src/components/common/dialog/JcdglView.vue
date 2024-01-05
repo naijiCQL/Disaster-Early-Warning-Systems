@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-19 15:00:48
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-27 15:38:14
+ * @LastEditTime: 2024-01-05 21:03:05
  * @FilePath: \DW-Systems\src\components\common\dialog\JcdglView.vue
  * @Description: 监测点信息列表页面
 -->
@@ -367,7 +367,7 @@ function chooseZhlx() {
 }
 //关闭dielog的回调函数，并且将所选择的参数都进行重置
 function handleClose() {
-    xzqhValue.value = ''
+    xzqhValue.value = '4205'
     jcdmcInput.value = ''
     zhlxValue.value = ''
     jcdbhInput.value = ''

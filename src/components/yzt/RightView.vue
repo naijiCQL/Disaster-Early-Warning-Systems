@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-11-29 20:45:00
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-27 13:50:36
+ * @LastEditTime: 2024-01-05 21:45:24
  * @FilePath: \DW-Systems\src\components\yzt\RightView.vue
  * @Description: 一张图右侧页面
 -->
@@ -66,7 +66,6 @@ function getYjNumber(params) {
                 noInfo.value = true
             }
             yjNumber.value = data
-
         }
     })
 }
@@ -215,6 +214,26 @@ function getMoreInfo() {
 function showJcsbView(param) {
     bus.emit('clickJcsbView', param)
 }
+//打开预警分析窗口
+function openYjfxView(param) {
+    let number = 0
+    switch (param) {
+        case 'red':
+            number = yjNumber.value.red
+            break;
+        case 'orange':
+            number = yjNumber.value.orange
+            break;
+        case 'yellow':
+            number = yjNumber.value.yellow
+            break;
+        case 'blue':
+            number = yjNumber.value.blue
+            break;
+        default:
+    }
+    bus.emit('clickYjfxView', number)
+}
 
 </script>
 
@@ -246,7 +265,7 @@ function showJcsbView(param) {
                         <span>预警信息</span>
                     </div>
                     <div class="yjxx-container">
-                        <div class="infoTab infoTab1">
+                        <div class="infoTab infoTab1" @click="openYjfxView('red')">
                             <div class="info">
                                 <span>警报级</span>
                             </div>
@@ -254,7 +273,7 @@ function showJcsbView(param) {
                                 <span class="spanNum">{{ yjNumber.red }}</span>
                             </div>
                         </div>
-                        <div class="infoTab infoTab2">
+                        <div class="infoTab infoTab2" @click="openYjfxView('orange')">
                             <div class="info">
                                 <span>警戒级</span>
                             </div>
@@ -262,7 +281,7 @@ function showJcsbView(param) {
                                 <span class="spanNum">{{ yjNumber.orange }}</span>
                             </div>
                         </div>
-                        <div class="infoTab infoTab3">
+                        <div class="infoTab infoTab3" @click="openYjfxView('yellow')">
                             <div class="info">
                                 <span>警示级</span>
                             </div>
@@ -270,7 +289,7 @@ function showJcsbView(param) {
                                 <span class="spanNum">{{ yjNumber.yellow }}</span>
                             </div>
                         </div>
-                        <div class="infoTab infoTab4">
+                        <div class="infoTab infoTab4" @click="openYjfxView('blue')">
                             <div class="info">
                                 <span>注意级</span>
                             </div>

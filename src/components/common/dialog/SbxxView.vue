@@ -2,7 +2,7 @@
  * @Author: 陈巧龙
  * @Date: 2023-12-25 10:35:37
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-12-27 15:42:37
+ * @LastEditTime: 2024-01-05 21:05:17
  * @FilePath: \DW-Systems\src\components\common\dialog\SbxxView.vue
  * @Description: 设备信息列表页面
 -->
@@ -301,8 +301,8 @@ function handleClose() {
     sbxxParams.jclx = ''
     sbxxParams.jcdw = null
     dialogVisible.value = false
+    xzqhValue.value = '4205'
 }
-
 </script>
 <template>
     <div class="main-page">

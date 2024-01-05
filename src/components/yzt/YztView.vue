@@ -14,6 +14,7 @@ import MapView from '@/components/common/MapView.vue';
 import JcdglView from '@/components/common/dialog/JcdglView.vue';
 import YjxxglView from '@/components/common/dialog/YjxxglView.vue';
 import SbxxView from '@/components/common/dialog/SbxxView.vue';
+import YjfxView from '@/components/common/dialog/YjfxView.vue';
 
 const syOlMap = ref('')
 
@@ -39,6 +40,8 @@ onMounted(() => {
                   <YjxxglView></YjxxglView>
                   <!-- 设备名称页面 -->
                   <SbxxView></SbxxView>
+                  <!-- 预警分析页面 -->
+                  <YjfxView></YjfxView>
             </div>
 
 
