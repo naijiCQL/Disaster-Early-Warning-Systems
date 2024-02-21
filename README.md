@@ -11,9 +11,9 @@
 
 ## 项目简介
 
-1、本项目采用Vue3 + Vite + Element Plus + pinia + Echarts进行编写，地图展示方面采用的是OpenLayers 6，主要目的是熟悉对Vue3以及OpenLayers的使用。
+1、本项目采用Vue3 + Vite + Element Plus + pinia + Echarts进行编写，地图展示方面采用的是OpenLayers 6，主要目的是熟悉对Vue3框架以及OpenLayers的使用。
 
-2、本项目作为练习实践项目，目前项目正在搭建中，后续再进行更新。
+2、部分代码未进行展示，目前项目正在优化中，后续再进行更新。
 
 3、欢迎大家一起沟通交流。
 

@@ -76,7 +76,7 @@ onMounted(() => {
 .head {
   width: 100%;
   height: 70px;
-  background-color: #00264B;
+  background-color: #00264b;
   display: flex;
   align-items: center;
   justify-content: space-between;
